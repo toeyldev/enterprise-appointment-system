@@ -1,6 +1,7 @@
 /home/toey/Downloads/cmpe172-starter-demo/src/main/java/edu/sjsu/cmpe172/starterdemo/StarterDemoApplication.java
 /home/toey/Downloads/cmpe172-starter-demo/src/main/java/edu/sjsu/cmpe172/starterdemo/controller/HomeController.java
 /home/toey/Downloads/cmpe172-starter-demo/src/main/java/edu/sjsu/cmpe172/starterdemo/controller/ItemController.java
+/home/toey/Downloads/cmpe172-starter-demo/src/main/java/edu/sjsu/cmpe172/starterdemo/controller/ScheduleController.java
 /home/toey/Downloads/cmpe172-starter-demo/src/main/java/edu/sjsu/cmpe172/starterdemo/model/Item.java
 /home/toey/Downloads/cmpe172-starter-demo/src/main/java/edu/sjsu/cmpe172/starterdemo/repository/ItemRepository.java
 /home/toey/Downloads/cmpe172-starter-demo/src/main/java/edu/sjsu/cmpe172/starterdemo/service/ItemService.java
