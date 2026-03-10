@@ -1,7 +1,9 @@
+edu/sjsu/cmpe172/starterdemo/model/Item.class
+edu/sjsu/cmpe172/starterdemo/service/ItemService.class
+edu/sjsu/cmpe172/starterdemo/controller/ReservationsController.class
 edu/sjsu/cmpe172/starterdemo/controller/HomeController.class
 edu/sjsu/cmpe172/starterdemo/controller/ItemController.class
-edu/sjsu/cmpe172/starterdemo/model/Item.class
 edu/sjsu/cmpe172/starterdemo/StarterDemoApplication.class
-edu/sjsu/cmpe172/starterdemo/service/ItemService.class
 edu/sjsu/cmpe172/starterdemo/controller/ScheduleController.class
+edu/sjsu/cmpe172/starterdemo/controller/CreditsController.class
 edu/sjsu/cmpe172/starterdemo/repository/ItemRepository.class
