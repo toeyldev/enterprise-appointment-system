@@ -11,9 +11,9 @@ public class PageController {
     @GetMapping("/class-schedule")
     public String showSchedulePage() { return "class-schedule"; }
 
-    @GetMapping("/credits")
-    public String credits() { return "credits"; }
-
     @GetMapping("/reservations")
     public String reservations() { return "reservations"; }
+
+    @GetMapping("credit-package")
+    public String creditPackage() { return "credit-package"; }
 }

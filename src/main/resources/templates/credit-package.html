@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Credits</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+    <a href="/" class="back-link">Back to Home</a>
+
+    <h1>Credits</h1>
+    <p class="subtitle">Mat Pilates at San Jose Studio</p>
+
+    <h2>Available balance: 11</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Credits</th>
+            <th>Cost</th>
+            <th>Cost per class</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="credit-package-body"></tbody>
+    </table>
+
+    <script>
+        fetch('/credits')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("credit-package-body");
+
+                data.forEach(package => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${package.classesPerPackage}</td>
+                        <td>$${package.packageCost}</td>
+                        <td>$${package.costPerClass.toFixed(2)}</td>
+                        <td><button class="action-button">Buy</button></td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error loading credits:", error));
+    </script>
+
+</body>
+</html>

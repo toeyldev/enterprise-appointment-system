@@ -11,7 +11,7 @@ import java.util.Map;
 @Repository
 public class ScheduleRepository {
 
-    private final Map<Long, ClassSession> store = new HashMap<>();
+    private final Map<Long, ClassSession> schedule = new HashMap<>();
     private long nextId = 1L;
 
     public ScheduleRepository() {
@@ -23,14 +23,14 @@ public class ScheduleRepository {
     }
 
     public List<ClassSession> findAll() {
-        return new ArrayList<>(store.values());
+        return new ArrayList<>(schedule.values());
     }
 
     public ClassSession save(ClassSession session) {
         if (session.getClassId() == null) {
             session.setClassId(nextId++);
         }
-        store.put(session.getClassId(), session);
+        schedule.put(session.getClassId(), session);
         return session;
     }
 }

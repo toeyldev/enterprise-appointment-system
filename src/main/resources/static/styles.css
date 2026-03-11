@@ -1,0 +1,84 @@
+/* page spacing */
+body {
+    margin: 60px 90px;
+}
+
+/* titles */
+h1 {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 20px;
+    font-style: italic;
+    margin-bottom: 40px;
+}
+
+/* link */
+.back-link {
+    text-decoration: none;
+    color: black;
+    background: #eeeeee;
+    padding: 6px 12px;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    font-size: 14px;
+}
+
+/* table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    font-weight: 600;
+    padding-bottom: 12px;
+}
+
+td {
+    padding: 18px 0;
+    font-size: 18px;
+}
+
+tr {
+    border-bottom: 1px solid #ddd;
+}
+
+/* buttons */
+.home-button {
+    display: inline-block;
+    padding: 14px 26px;
+    width: 220px;
+
+    text-align: center;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: normal;
+
+    color: black;
+    background-color: #e6e6e6;
+
+    border: none;
+    border-radius: 6px;
+
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.home-button:hover {
+    background-color: #dcdcdc;
+}
+
+.action-button {
+    background: transparent;
+    border: 2px solid #c3c4c3;
+    color: #4a4a4a;
+
+    padding: 10px 26px;
+    font-size: 16px;
+
+    border-radius: 30px;
+    cursor: pointer;
+}

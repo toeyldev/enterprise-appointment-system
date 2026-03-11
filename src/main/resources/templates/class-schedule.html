@@ -2,13 +2,14 @@
 <html>
 <head>
     <title>Schedule</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 
-    <a href="/">Back to Home</a>
+    <a href="/" class="back-link">Back to Home</a>
 
     <h1>Schedule</h1>
-    <p>Mat Pilates at San Jose Studio</p>
+    <p class="subtitle">Mat Pilates at San Jose Studio</p>
 
     <table>
         <thead>
@@ -35,7 +36,7 @@
                         <td>${session.classDate}</td>
                         <td>${session.classTime}</td>
                         <td>${session.instructorName}</td>
-                        <td><button>Reserve</button></td>
+                        <td><button class="action-button">Reserve</button></td>
                     `;
 
                     tableBody.appendChild(row);
