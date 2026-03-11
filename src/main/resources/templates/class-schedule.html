@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schedule</title>
+</head>
+<body>
+
+    <a href="/">Back to Home</a>
+
+    <h1>Schedule</h1>
+    <p>Mat Pilates at San Jose Studio</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Instructor</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+            <tbody id="schedule-body"></tbody>
+    </table>
+
+    <script>
+        fetch('/schedule')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("schedule-body");
+
+                data.forEach(session => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${session.classDate}</td>
+                        <td>${session.classTime}</td>
+                        <td>${session.instructorName}</td>
+                        <td><button>Reserve</button></td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error loading schedule:", error));
+    </script>
+</body>
+</html>

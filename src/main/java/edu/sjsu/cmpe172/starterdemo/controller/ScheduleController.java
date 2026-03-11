@@ -9,8 +9,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/schedule")
 public class ScheduleController {
-    //@GetMapping("/schedule")
-    //public String schedule() { return "schedule"; }
 
     private final ScheduleService service;
 
