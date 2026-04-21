@@ -17,6 +17,7 @@
         <th>Date</th>
         <th>Time</th>
         <th>Instructor</th>
+        <th>Available Spots</th>
         <th>Action</th>
     </tr>
     </thead>
@@ -31,14 +32,16 @@
 
             data.forEach(session => {
                 const row = document.createElement("tr");
+                const buttonLabel = session.availableSpots > 0 ? "Reserve" : "Waitlist only";
 
                 row.innerHTML = `
                     <td>${session.classDate}</td>
                     <td>${session.classTime}</td>
                     <td>${session.instructorName}</td>
+                    <td>${session.availableSpots}</td>
                     <td>
                         <button class="action-button" data-class-id="${session.classId}">
-                            Reserve
+                            ${buttonLabel}
                         </button>
                     </td>
                 `;
@@ -61,7 +64,10 @@
                         })
                     })
                         .then(response => response.text())
-                        .then(message => alert(message))
+                        .then(message => {
+                            alert(message);
+                            location.reload();
+                        })
                         .catch(error => console.error("Reservation error:", error));
                 });
             });

@@ -28,18 +28,12 @@ public class ReservationService {
     @Transactional
     public String makeReservation(Long customerUserId, Long classId) {
 
-        List<ClassSession> sessions = scheduleRepository.findAll();
-
-        ClassSession selected = sessions.stream()
-                .filter(s -> s.getClassId().equals(classId))
-                .findFirst()
-                .orElse(null);
+        ClassSession selected = scheduleRepository.findByIdForUpdate(classId);
 
         if (selected == null) {
             return "Class not found";
         }
 
-        // NEW: prevent duplicate booking
         if (reservationRepository.existsByCustomerAndClass(customerUserId, classId)) {
             return "You already reserved this class";
         }

@@ -7,7 +7,7 @@ public class ClassSession {
     private String classTime;
     private String instructorName;
     private int classCapacity;
-    // private int availableSpots; - Derived attribute
+    private int availableSpots; // Derived attribute
 
     public ClassSession() {
     }
@@ -60,13 +60,11 @@ public class ClassSession {
         this.classCapacity = classCapacity;
     }
 
-    /*
     public int getAvailableSpots() {
         return availableSpots;
-    } */
+    }
 
-    /*
     public void setAvailableSpots(int availableSpots) {
         this.availableSpots = availableSpots;
-    } */
+    }
 }

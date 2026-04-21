@@ -17,20 +17,31 @@ public class ScheduleRepository {
 
     public List<ClassSession> findAll() {
         String sql = """
-                SELECT class_id, class_date, class_time, instructor_name, class_capacity
-                FROM class_sessions
-                ORDER BY class_id
+                SELECT cs.class_id,
+                       cs.class_date,
+                       cs.class_time,
+                       cs.instructor_name,
+                       cs.class_capacity,
+                       (cs.class_capacity - COALESCE(COUNT(r.reservation_id), 0)) AS available_spots
+                FROM class_sessions cs
+                LEFT JOIN reservations r
+                  ON cs.class_id = r.class_id
+                 AND r.status = 'Booked'
+                GROUP BY cs.class_id, cs.class_date, cs.class_time, cs.instructor_name, cs.class_capacity
+                ORDER BY cs.class_id
                 """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) ->
-                new ClassSession(
-                        rs.getLong("class_id"),
-                        rs.getString("class_date"),
-                        rs.getString("class_time"),
-                        rs.getString("instructor_name"),
-                        rs.getInt("class_capacity")
-                )
-        );
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            ClassSession session = new ClassSession(
+                    rs.getLong("class_id"),
+                    rs.getString("class_date"),
+                    rs.getString("class_time"),
+                    rs.getString("instructor_name"),
+                    rs.getInt("class_capacity")
+            );
+            session.setAvailableSpots(rs.getInt("available_spots"));
+            return session;
+        });
     }
 
     public ClassSession save(ClassSession session) {
@@ -49,5 +60,44 @@ public class ScheduleRepository {
         );
 
         return session;
+    }
+
+    public ClassSession findById(Long classId) {
+        String sql = """
+                SELECT class_id, class_date, class_time, instructor_name, class_capacity
+                FROM class_sessions
+                WHERE class_id = ?
+                """;
+
+        List<ClassSession> results = jdbcTemplate.query(sql, (rs, rowNum) ->
+                new ClassSession(
+                        rs.getLong("class_id"),
+                        rs.getString("class_date"),
+                        rs.getString("class_time"),
+                        rs.getString("instructor_name"),
+                        rs.getInt("class_capacity")
+                ), classId);
+
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    public ClassSession findByIdForUpdate(Long classId) {
+        String sql = """
+                SELECT class_id, class_date, class_time, instructor_name, class_capacity
+                FROM class_sessions
+                WHERE class_id = ?
+                FOR UPDATE
+                """;
+
+        List<ClassSession> results = jdbcTemplate.query(sql, (rs, rowNum) ->
+                new ClassSession(
+                        rs.getLong("class_id"),
+                        rs.getString("class_date"),
+                        rs.getString("class_time"),
+                        rs.getString("instructor_name"),
+                        rs.getInt("class_capacity")
+                ), classId);
+
+        return results.isEmpty() ? null : results.get(0);
     }
 }
