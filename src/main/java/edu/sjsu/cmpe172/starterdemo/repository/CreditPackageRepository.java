@@ -1,36 +1,49 @@
 package edu.sjsu.cmpe172.starterdemo.repository;
 
 import edu.sjsu.cmpe172.starterdemo.model.CreditPackage;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class CreditPackageRepository {
 
-    private final Map<Long, CreditPackage> packages = new HashMap<>();
-    private long nextId = 1L;
+    private final JdbcTemplate jdbcTemplate;
 
-    public CreditPackageRepository() {
-        // Mock data
-        save(new CreditPackage(null, 444, 20));
-        save(new CreditPackage(null, 277, 10));
-        save(new CreditPackage(null, 31, 5));
-        save(new CreditPackage(null, 33, 1));
+    public CreditPackageRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public List<CreditPackage> findAll() {
-        return new ArrayList<>(packages.values());
+        String sql = """
+                SELECT package_id, package_cost, classes_per_package
+                FROM credit_packages
+                ORDER BY package_id
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new CreditPackage(
+                        rs.getLong("package_id"),
+                        rs.getDouble("package_cost"),
+                        rs.getInt("classes_per_package")
+                )
+        );
     }
 
     public CreditPackage save(CreditPackage creditPackage) {
-        if (creditPackage.getPackageId() == null) {
-            creditPackage.setPackageId(nextId++);
-        }
-        packages.put(creditPackage.getPackageId(), creditPackage);
+        String sql = """
+                INSERT INTO credit_packages
+                (package_cost, classes_per_package)
+                VALUES (?, ?)
+                """;
+
+        jdbcTemplate.update(
+                sql,
+                creditPackage.getPackageCost(),
+                creditPackage.getClassesPerPackage()
+        );
+
         return creditPackage;
     }
 }
