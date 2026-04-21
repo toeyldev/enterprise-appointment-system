@@ -1,6 +1,7 @@
 package edu.sjsu.cmpe172.starterdemo.service;
 
 import edu.sjsu.cmpe172.starterdemo.model.ClassSession;
+import edu.sjsu.cmpe172.starterdemo.model.NotificationRequest;
 import edu.sjsu.cmpe172.starterdemo.model.Reservation;
 import edu.sjsu.cmpe172.starterdemo.repository.ReservationRepository;
 import edu.sjsu.cmpe172.starterdemo.repository.ScheduleRepository;
@@ -16,13 +17,16 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ScheduleRepository scheduleRepository;
     private final WaitlistRepository waitlistRepository;
+    private final NotificationClient notificationClient;
 
     public ReservationService(ReservationRepository reservationRepository,
                               ScheduleRepository scheduleRepository,
-                              WaitlistRepository waitlistRepository) {
+                              WaitlistRepository waitlistRepository,
+                              NotificationClient notificationClient) {
         this.reservationRepository = reservationRepository;
         this.scheduleRepository = scheduleRepository;
         this.waitlistRepository = waitlistRepository;
+        this.notificationClient = notificationClient;
     }
 
     public List<Reservation> getAllReservations() {
@@ -50,7 +54,17 @@ public class ReservationService {
 
         if (bookedCount < selected.getClassCapacity()) {
             reservationRepository.insertReservation(customerUserId, classId);
-            return "Reservation successful";
+
+            NotificationRequest notificationRequest = new NotificationRequest(
+                    customerUserId,
+                    classId,
+                    "customer1@example.com",
+                    "Your Pilates reservation is confirmed."
+            );
+
+            String notificationResult = notificationClient.sendReservationConfirmation(notificationRequest);
+
+            return "Reservation successful. " + notificationResult;
         }
 
         waitlistRepository.insertWaitlistEntry(customerUserId, classId);
