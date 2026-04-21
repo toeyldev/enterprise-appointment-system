@@ -14,6 +14,6 @@ public class PageController {
     @GetMapping("/reservations")
     public String reservations() { return "reservations"; }
 
-    @GetMapping("credit-package")
+    @GetMapping("/credit-package")
     public String creditPackage() { return "credit-package"; }
 }

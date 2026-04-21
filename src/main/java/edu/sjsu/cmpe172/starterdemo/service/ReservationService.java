@@ -4,6 +4,7 @@ import edu.sjsu.cmpe172.starterdemo.model.ClassSession;
 import edu.sjsu.cmpe172.starterdemo.model.Reservation;
 import edu.sjsu.cmpe172.starterdemo.repository.ReservationRepository;
 import edu.sjsu.cmpe172.starterdemo.repository.ScheduleRepository;
+import edu.sjsu.cmpe172.starterdemo.repository.WaitlistRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,11 +15,14 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final ScheduleRepository scheduleRepository;
+    private final WaitlistRepository waitlistRepository;
 
     public ReservationService(ReservationRepository reservationRepository,
-                              ScheduleRepository scheduleRepository) {
+                              ScheduleRepository scheduleRepository,
+                              WaitlistRepository waitlistRepository) {
         this.reservationRepository = reservationRepository;
         this.scheduleRepository = scheduleRepository;
+        this.waitlistRepository = waitlistRepository;
     }
 
     public List<Reservation> getAllReservations() {
@@ -38,14 +42,18 @@ public class ReservationService {
             return "You already reserved this class";
         }
 
-        int bookedCount = reservationRepository.countBookedReservations(classId);
-
-        if (bookedCount >= selected.getClassCapacity()) {
-            return "Class is full";
+        if (waitlistRepository.existsByCustomerAndClass(customerUserId, classId)) {
+            return "You are already on the waitlist for this class";
         }
 
-        reservationRepository.insertReservation(customerUserId, classId);
+        int bookedCount = reservationRepository.countBookedReservations(classId);
 
-        return "Reservation successful";
+        if (bookedCount < selected.getClassCapacity()) {
+            reservationRepository.insertReservation(customerUserId, classId);
+            return "Reservation successful";
+        }
+
+        waitlistRepository.insertWaitlistEntry(customerUserId, classId);
+        return "Class is full. You have been added to the waitlist";
     }
 }

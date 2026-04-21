@@ -29,10 +29,11 @@
         .then(response => response.json())
         .then(data => {
             const tableBody = document.getElementById("schedule-body");
+            tableBody.innerHTML = "";
 
             data.forEach(session => {
                 const row = document.createElement("tr");
-                const buttonLabel = session.availableSpots > 0 ? "Reserve" : "Waitlist only";
+                const buttonLabel = session.availableSpots > 0 ? "Reserve" : "Join Waitlist";
 
                 row.innerHTML = `
                     <td>${session.classDate}</td>

@@ -22,12 +22,22 @@ public class ScheduleRepository {
                        cs.class_time,
                        cs.instructor_name,
                        cs.class_capacity,
-                       (cs.class_capacity - COALESCE(COUNT(r.reservation_id), 0)) AS available_spots
+                       (
+                           cs.class_capacity -
+                           (
+                               SELECT COUNT(*)
+                               FROM reservations r
+                               WHERE r.class_id = cs.class_id
+                                 AND r.status = 'Booked'
+                           )
+                       ) AS available_spots,
+                       (
+                           SELECT COUNT(*)
+                           FROM waitlist w
+                           WHERE w.class_id = cs.class_id
+                             AND w.status = 'Waiting'
+                       ) AS waitlist_count
                 FROM class_sessions cs
-                LEFT JOIN reservations r
-                  ON cs.class_id = r.class_id
-                 AND r.status = 'Booked'
-                GROUP BY cs.class_id, cs.class_date, cs.class_time, cs.instructor_name, cs.class_capacity
                 ORDER BY cs.class_id
                 """;
 
@@ -40,6 +50,7 @@ public class ScheduleRepository {
                     rs.getInt("class_capacity")
             );
             session.setAvailableSpots(rs.getInt("available_spots"));
+            session.setWaitlistCount(rs.getInt("waitlist_count"));
             return session;
         });
     }
