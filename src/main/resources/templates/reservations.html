@@ -7,8 +7,43 @@
 <body>
 <a href="/" class="back-link">Back to Home</a>
 
-    <h1>Reservation History</h1>
-    <p class="subtitle">Mat Pilates at San Jose Studio</p>
+<h1>Reservation History</h1>
+<p class="subtitle">Mat Pilates at San Jose Studio</p>
 
+<table>
+    <thead>
+    <tr>
+        <th>Reservation ID</th>
+        <th>Customer ID</th>
+        <th>Class ID</th>
+        <th>Status</th>
+        <th>Reserved At</th>
+    </tr>
+    </thead>
+    <tbody id="reservation-body"></tbody>
+</table>
+
+<script>
+    fetch('/api/reservations')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById("reservation-body");
+
+            data.forEach(reservation => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                        <td>${reservation.reservationId}</td>
+                        <td>${reservation.customerUserId}</td>
+                        <td>${reservation.classId}</td>
+                        <td>${reservation.status}</td>
+                        <td>${reservation.reservedAt}</td>
+                    `;
+
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error("Error loading reservations:", error));
+</script>
 </body>
 </html>

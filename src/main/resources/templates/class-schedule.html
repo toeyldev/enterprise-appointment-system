@@ -6,43 +6,67 @@
 </head>
 <body>
 
-    <a href="/" class="back-link">Back to Home</a>
+<a href="/" class="back-link">Back to Home</a>
 
-    <h1>Schedule</h1>
-    <p class="subtitle">Mat Pilates at San Jose Studio</p>
+<h1>Schedule</h1>
+<p class="subtitle">Mat Pilates at San Jose Studio</p>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Instructor</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-            <tbody id="schedule-body"></tbody>
-    </table>
+<table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Instructor</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody id="schedule-body"></tbody>
+</table>
 
-    <script>
-        fetch('/schedule')
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.getElementById("schedule-body");
+<script>
+    fetch('/schedule')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById("schedule-body");
 
-                data.forEach(session => {
-                    const row = document.createElement("tr");
+            data.forEach(session => {
+                const row = document.createElement("tr");
 
-                    row.innerHTML = `
-                        <td>${session.classDate}</td>
-                        <td>${session.classTime}</td>
-                        <td>${session.instructorName}</td>
-                        <td><button class="action-button">Reserve</button></td>
-                    `;
+                row.innerHTML = `
+                    <td>${session.classDate}</td>
+                    <td>${session.classTime}</td>
+                    <td>${session.instructorName}</td>
+                    <td>
+                        <button class="action-button" data-class-id="${session.classId}">
+                            Reserve
+                        </button>
+                    </td>
+                `;
 
-                    tableBody.appendChild(row);
+                tableBody.appendChild(row);
+            });
+
+            document.querySelectorAll(".action-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    const classId = Number(this.getAttribute("data-class-id"));
+
+                    fetch('/api/reservations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            customerUserId: 1,
+                            classId: classId
+                        })
+                    })
+                        .then(response => response.text())
+                        .then(message => alert(message))
+                        .catch(error => console.error("Reservation error:", error));
                 });
-            })
-            .catch(error => console.error("Error loading schedule:", error));
-    </script>
+            });
+        })
+        .catch(error => console.error("Error loading schedule:", error));
+</script>
 </body>
 </html>
