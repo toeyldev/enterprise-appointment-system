@@ -11,48 +11,89 @@
 <h1>Schedule</h1>
 <p class="subtitle">Mat Pilates at San Jose Studio</p>
 
-<table>
-    <thead>
-    <tr>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Instructor</th>
-        <th>Available Spots</th>
-        <th>Action</th>
-    </tr>
-    </thead>
-    <tbody id="schedule-body"></tbody>
-</table>
+<div id="schedule-container"></div>
 
 <script>
+    function formatDate(dateString) {
+        const date = new Date(dateString + "T00:00:00");
+
+        return date.toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        });
+    }
+
     fetch('/schedule')
         .then(response => response.json())
         .then(data => {
-            const tableBody = document.getElementById("schedule-body");
-            tableBody.innerHTML = "";
+            const container = document.getElementById("schedule-container");
+            container.innerHTML = "";
+
+            const grouped = {};
 
             data.forEach(session => {
-                const row = document.createElement("tr");
-                const buttonLabel = session.availableSpots > 0 ? "Reserve" : "Join Waitlist";
+                if (!grouped[session.classDate]) {
+                    grouped[session.classDate] = [];
+                }
+                grouped[session.classDate].push(session);
+            });
 
-                row.innerHTML = `
-                    <td>${session.classDate}</td>
-                    <td>${session.classTime}</td>
-                    <td>${session.instructorName}</td>
-                    <td>${session.availableSpots}</td>
-                    <td>
-                        <button class="action-button" data-class-id="${session.classId}">
-                            ${buttonLabel}
-                        </button>
-                    </td>
+            Object.keys(grouped).forEach(date => {
+
+                const section = document.createElement("div");
+                section.className = "date-section";
+
+                section.innerHTML = `
+                    <h2 class="date-title">${formatDate(date)}</h2>
+
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Instructor</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="body-${date}"></tbody>
+                    </table>
                 `;
 
-                tableBody.appendChild(row);
+                container.appendChild(section);
+
+                const tbody = document.getElementById(`body-${date}`);
+
+                grouped[date].forEach(session => {
+                    const row = document.createElement("tr");
+
+                    const buttonLabel =
+                        session.availableSpots > 0 ? "Reserve" : "Join Waitlist";
+
+                    row.innerHTML = `
+                        <td>
+                            <div>${session.classTime}</div>
+                            <div class="duration-text">45 mins</div>
+                        </td>
+                        <td>${session.instructorName}</td>
+                        <td>
+                            <button class="action-button"
+                                    data-class-id="${session.classId}">
+                                ${buttonLabel}
+                            </button>
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
             });
 
             document.querySelectorAll(".action-button").forEach(button => {
                 button.addEventListener("click", function () {
-                    const classId = Number(this.getAttribute("data-class-id"));
+
+                    const classId = Number(
+                        this.getAttribute("data-class-id")
+                    );
 
                     fetch('/api/reservations', {
                         method: 'POST',
@@ -69,11 +110,16 @@
                             alert(message);
                             location.reload();
                         })
-                        .catch(error => console.error("Reservation error:", error));
+                        .catch(error =>
+                            console.error("Reservation error:", error)
+                        );
                 });
             });
         })
-        .catch(error => console.error("Error loading schedule:", error));
+        .catch(error =>
+            console.error("Error loading schedule:", error)
+        );
 </script>
+
 </body>
 </html>

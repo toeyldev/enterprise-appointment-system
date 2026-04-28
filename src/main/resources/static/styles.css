@@ -22,10 +22,11 @@ h1 {
     background: #eeeeee;
     padding: 6px 12px;
     border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
     font-size: 14px;
 }
 
+/* table */
 /* table */
 table {
     width: 100%;
@@ -47,6 +48,43 @@ tr {
     border-bottom: 1px solid #ddd;
 }
 
+/* schedule page table only */
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.schedule-table th {
+    text-align: left;
+    font-weight: 600;
+    padding-bottom: 12px;
+}
+
+.schedule-table td {
+    padding: 18px 0;
+    font-size: 18px;
+}
+
+.schedule-table tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.schedule-table th:nth-child(1),
+.schedule-table td:nth-child(1) {
+    width: 22%;
+}
+
+.schedule-table th:nth-child(2),
+.schedule-table td:nth-child(2) {
+    width: 38%;
+}
+
+.schedule-table th:nth-child(3),
+.schedule-table td:nth-child(3) {
+    width: 40%;
+}
+
 /* buttons */
 .home-button {
     display: inline-block;
@@ -64,7 +102,7 @@ tr {
     border: none;
     border-radius: 6px;
 
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .home-button:hover {
@@ -81,4 +119,23 @@ tr {
 
     border-radius: 30px;
     cursor: pointer;
+}
+
+/* date */
+.date-section {
+    margin-top: 45px;
+}
+
+.date-title {
+    font-size: 28px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+/* text */
+.duration-text {
+    color: #8a8a8a;
+    font-size: 13px;
+    margin-top: 4px;
 }
