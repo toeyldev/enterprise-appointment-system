@@ -1,0 +1,1 @@
+SELECT * FROM pilates_studio.reservations;
