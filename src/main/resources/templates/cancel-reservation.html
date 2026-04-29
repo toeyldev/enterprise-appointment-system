@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cancel Reservation</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<a href="/reservations" class="back-link">Back to Reservations</a>
+
+<h1>Cancel Reservation</h1>
+<p class="subtitle">Mat Pilates at San Jose Studio</p>
+
+<h2>Are you sure you want to cancel this reservation?</h2>
+
+<div id="reservation-info" class="cancel-details"></div>
+
+<button id="confirm-cancel-button"
+        class="action-button cancel-button">
+    Confirm Cancel
+</button>
+
+<script>
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        alert("Please login first.");
+        window.location.href = "/";
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const reservationId = params.get("reservationId");
+
+    Promise.all([
+        fetch(`/api/reservations/customer/${userId}`)
+            .then(response => response.json()),
+
+        fetch('/schedule')
+            .then(response => response.json())
+    ])
+        .then(([reservations, schedules]) => {
+
+            const reservation = reservations.find(
+                r => r.reservationId == reservationId
+            );
+
+            if (!reservation) {
+                document.getElementById("reservation-info").textContent =
+                    "Reservation not found.";
+                return;
+            }
+
+            const session = schedules.find(
+                s => s.classId == reservation.classId
+            );
+
+            if (!session) {
+                document.getElementById("reservation-info").textContent =
+                    "Class details not found.";
+                return;
+            }
+
+            document.getElementById("reservation-info").innerHTML = `
+            <div class="detail-row">
+                <span class="detail-label">Date</span>
+                <span class="detail-value">${session.classDate}</span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-label">Time</span>
+                <span class="detail-value">${session.classTime}</span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-label">Instructor</span>
+                <span class="detail-value">${session.instructorName}</span>
+            </div>
+        `;
+        });
+
+    document.getElementById("confirm-cancel-button")
+        .addEventListener("click", function () {
+
+            fetch('/api/reservations/cancel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reservationId: Number(reservationId),
+                    customerUserId: Number(userId)
+                })
+            })
+                .then(response => response.text())
+                .then(message => {
+                    alert(message);
+                    window.location.href = "/reservations";
+                })
+                .catch(error =>
+                    console.error("Cancel error:", error)
+                );
+        });
+</script>
+
+</body>
+</html>

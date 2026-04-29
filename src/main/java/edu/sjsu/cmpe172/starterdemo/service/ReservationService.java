@@ -1,11 +1,7 @@
 package edu.sjsu.cmpe172.starterdemo.service;
 
-import edu.sjsu.cmpe172.starterdemo.model.ClassSession;
-import edu.sjsu.cmpe172.starterdemo.model.NotificationRequest;
-import edu.sjsu.cmpe172.starterdemo.model.Reservation;
-import edu.sjsu.cmpe172.starterdemo.repository.ReservationRepository;
-import edu.sjsu.cmpe172.starterdemo.repository.ScheduleRepository;
-import edu.sjsu.cmpe172.starterdemo.repository.WaitlistRepository;
+import edu.sjsu.cmpe172.starterdemo.model.*;
+import edu.sjsu.cmpe172.starterdemo.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,21 +19,79 @@ public class ReservationService {
     private final WaitlistRepository waitlistRepository;
     private final NotificationClient notificationClient;
     private final SystemMetricsService metricsService;
+    private final UserRepository userRepository;
+    private final ClassCreditRepository classCreditRepository;
 
     public ReservationService(ReservationRepository reservationRepository,
                               ScheduleRepository scheduleRepository,
                               WaitlistRepository waitlistRepository,
                               NotificationClient notificationClient,
-                              SystemMetricsService metricsService) {
+                              SystemMetricsService metricsService,
+                              UserRepository userRepository,
+                              ClassCreditRepository classCreditRepository) {
         this.reservationRepository = reservationRepository;
         this.scheduleRepository = scheduleRepository;
         this.waitlistRepository = waitlistRepository;
         this.notificationClient = notificationClient;
         this.metricsService = metricsService;
+        this.userRepository = userRepository;
+        this.classCreditRepository = classCreditRepository;
     }
 
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
+    }
+
+    public List<Reservation> getReservationsByCustomer(Long customerUserId) {
+        return reservationRepository.findByCustomerUserId(customerUserId);
+    }
+
+    @Transactional
+    public String cancelReservation(Long reservationId, Long customerUserId) {
+        Reservation reservation = reservationRepository.findById(reservationId);
+
+        if (reservation == null || !"Booked".equals(reservation.getStatus())) {
+            return "Cancellation failed. Reservation not found or already canceled.";
+        }
+
+        Long classId = reservation.getClassId();
+
+        int rowsUpdated = reservationRepository.cancelReservation(reservationId, customerUserId);
+
+        if (rowsUpdated == 0) {
+            return "Cancellation failed. Reservation not found or already canceled.";
+        }
+
+        classCreditRepository.addCredits(customerUserId, 1);
+
+        WaitlistEntry nextWaitlisted = waitlistRepository.findFirstWaitingByClassId(classId);
+
+        if (nextWaitlisted != null) {
+            boolean creditDeducted =
+                    classCreditRepository.deductOneCredit(nextWaitlisted.getCustomerUserId());
+
+            if (creditDeducted) {
+                reservationRepository.insertReservation(
+                        nextWaitlisted.getCustomerUserId(),
+                        classId
+                );
+
+                waitlistRepository.markPromoted(nextWaitlisted.getWaitlistId());
+
+                logger.info("Waitlisted customer promoted: customerUserId={}, classId={}",
+                        nextWaitlisted.getCustomerUserId(), classId);
+
+                return "Reservation canceled successfully. One credit refunded. Next waitlisted customer was promoted.";
+            }
+
+            logger.warn("Waitlisted customer could not be promoted due to insufficient credits: customerUserId={}, classId={}",
+                    nextWaitlisted.getCustomerUserId(), classId);
+        }
+
+        logger.info("Reservation canceled: reservationId={}, customerUserId={}",
+                reservationId, customerUserId);
+
+        return "Reservation canceled successfully. One class credit has been refunded.";
     }
 
     @Transactional
@@ -73,12 +127,28 @@ public class ReservationService {
             int bookedCount = reservationRepository.countBookedReservations(classId);
 
             if (bookedCount < selected.getClassCapacity()) {
+
+                boolean creditDeducted = classCreditRepository.deductOneCredit(customerUserId);
+
+                if (!creditDeducted) {
+                    long latency = System.currentTimeMillis() - startTime;
+                    metricsService.recordFailedBooking(latency);
+
+                    logger.warn("Booking rejected: insufficient credits. customerUserId={}, classId={}",
+                            customerUserId, classId);
+
+                    return "Reservation failed: not enough class credits.";
+                }
+
                 reservationRepository.insertReservation(customerUserId, classId);
+
+                User customer = userRepository.findById(customerUserId);
+                String customerEmail = customer != null ? customer.getEmail() : "unknown@example.com";
 
                 NotificationRequest notificationRequest = new NotificationRequest(
                         customerUserId,
                         classId,
-                        "customer1@example.com",
+                        customerEmail,
                         "Your Pilates reservation is confirmed."
                 );
 

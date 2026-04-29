@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Credit History</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<a href="/home" class="back-link">Back to Home</a>
+
+<h1>Credit Purchase History</h1>
+<p class="subtitle">Mat Pilates at San Jose Studio</p>
+
+<table class="history-table">
+    <thead>
+    <tr>
+        <th class="col-main-time">Purchased At</th>
+        <th class="col-instructor">Credit Package</th>
+    </tr>
+    </thead>
+    <tbody id="history-body"></tbody>
+</table>
+
+<script>
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        alert("Please login first.");
+        window.location.href = "/";
+    }
+
+    fetch(`/api/credit-history/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+
+            const body = document.getElementById("history-body");
+            body.innerHTML = "";
+
+            data.forEach(item => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                <td>${item.purchaseDateAndTime}</td>
+                <td>${item.creditsAdded} Credits</td>
+            `;
+
+                body.appendChild(row);
+            });
+        })
+        .catch(error =>
+            console.error("Error loading credit history:", error)
+        );
+</script>
+
+</body>
+</html>

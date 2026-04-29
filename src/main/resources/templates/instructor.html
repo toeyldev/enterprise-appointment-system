@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Instructor Dashboard</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<button id="logout-button" class="logout-button">Logout</button>
+
+<h1>Instructor Dashboard</h1>
+<p class="subtitle">Assigned Pilates Classes</p>
+
+<h2 id="welcome-text">Welcome!</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Capacity</th>
+        <th>Booked</th>
+        <th>Waitlist</th>
+    </tr>
+    </thead>
+    <tbody id="instructor-classes-body"></tbody>
+</table>
+
+<script>
+    const userId = localStorage.getItem("userId");
+    const firstName = localStorage.getItem("firstName");
+    const role = localStorage.getItem("role");
+
+    if (!userId || role !== "Instructor") {
+        alert("Instructor login required.");
+        window.location.href = "/";
+    }
+
+    document.getElementById("welcome-text").textContent =
+        `Welcome, ${firstName}!`;
+
+    fetch(`/schedule/instructor/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById("instructor-classes-body");
+            tableBody.innerHTML = "";
+
+            data.forEach(session => {
+                const booked = session.classCapacity - session.availableSpots;
+
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${session.classDate}</td>
+                    <td>${session.classTime}</td>
+                    <td>${session.classCapacity}</td>
+                    <td>${booked}</td>
+                    <td>${session.waitlistCount}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error("Error loading instructor classes:", error));
+
+    document.getElementById("logout-button").addEventListener("click", function () {
+        localStorage.clear();
+        window.location.href = "/";
+    });
+</script>
+
+</body>
+</html>

@@ -67,4 +67,65 @@ public class WaitlistRepository {
                 )
         );
     }
+
+    public List<WaitlistEntry> findByCustomerUserId(Long customerUserId) {
+        String sql = """
+                SELECT waitlist_id, customer_user_id, class_id, joined_at, status
+                FROM waitlist
+                WHERE customer_user_id = ?
+                ORDER BY joined_at DESC
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new WaitlistEntry(
+                        rs.getLong("waitlist_id"),
+                        rs.getLong("customer_user_id"),
+                        rs.getLong("class_id"),
+                        rs.getString("joined_at"),
+                        rs.getString("status")
+                ), customerUserId);
+    }
+
+    public int leaveWaitlist(Long waitlistId, Long customerUserId) {
+        String sql = """
+                DELETE FROM waitlist
+                WHERE waitlist_id = ?
+                  AND customer_user_id = ?
+                  AND status = 'Waiting'
+                """;
+
+        return jdbcTemplate.update(sql, waitlistId, customerUserId);
+    }
+
+    public WaitlistEntry findFirstWaitingByClassId(Long classId) {
+        String sql = """
+                SELECT waitlist_id, customer_user_id, class_id, joined_at, status
+                FROM waitlist
+                WHERE class_id = ?
+                  AND status = 'Waiting'
+                ORDER BY joined_at ASC
+                LIMIT 1
+                """;
+
+        List<WaitlistEntry> results = jdbcTemplate.query(sql, (rs, rowNum) ->
+                new WaitlistEntry(
+                        rs.getLong("waitlist_id"),
+                        rs.getLong("customer_user_id"),
+                        rs.getLong("class_id"),
+                        rs.getString("joined_at"),
+                        rs.getString("status")
+                ), classId);
+
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    public void markPromoted(Long waitlistId) {
+        String sql = """
+                UPDATE waitlist
+                SET status = 'Promoted'
+                WHERE waitlist_id = ?
+                """;
+
+        jdbcTemplate.update(sql, waitlistId);
+    }
 }

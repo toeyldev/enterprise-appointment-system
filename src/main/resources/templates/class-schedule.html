@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<a href="/" class="back-link">Back to Home</a>
+<a href="/home" class="back-link">Back to Home</a>
 
 <h1>Schedule</h1>
 <p class="subtitle">Mat Pilates at San Jose Studio</p>
@@ -27,7 +27,39 @@
 
     fetch('/schedule')
         .then(response => response.json())
-        .then(data => {
+        .then(async data => {
+
+            const userId = localStorage.getItem("userId");
+
+            if (!userId) {
+                alert("Please login first.");
+                window.location.href = "/";
+                return;
+            }
+
+            const reservationsResponse =
+                await fetch(`/api/reservations/customer/${userId}`);
+
+            const reservationsData =
+                await reservationsResponse.json();
+
+            const waitlistResponse =
+                await fetch(`/api/waitlist/customer/${userId}`);
+
+            const waitlistData =
+                await waitlistResponse.json();
+
+            const userReservations = reservationsData
+                .filter(r => r.status === "Booked")
+                .map(r => ({
+                    classId: r.classId,
+                    reservationId: r.reservationId
+                }));
+
+            const userWaitlist = waitlistData
+                .filter(w => w.status === "Waiting")
+                .map(w => w.classId);
+
             const container = document.getElementById("schedule-container");
             container.innerHTML = "";
 
@@ -46,54 +78,95 @@
                 section.className = "date-section";
 
                 section.innerHTML = `
-                    <h2 class="date-title">${formatDate(date)}</h2>
+                <h2 class="date-title">${formatDate(date)}</h2>
 
-                    <table class="schedule-table">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Instructor</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="body-${date}"></tbody>
-                    </table>
-                `;
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Instructor</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-${date}"></tbody>
+                </table>
+            `;
 
                 container.appendChild(section);
 
                 const tbody = document.getElementById(`body-${date}`);
 
                 grouped[date].forEach(session => {
+
+                    const reservation = userReservations.find(
+                        r => r.classId === session.classId
+                    );
+
+                    const alreadyReserved = reservation !== undefined;
+                    const alreadyWaitlisted = userWaitlist.includes(session.classId);
+
+                    let buttonHtml = "";
+
+                    if (alreadyReserved) {
+                        buttonHtml = `
+                        <button class="action-button reserved-button" disabled>
+                            Reserved
+                        </button>
+
+                        <button class="action-button cancel-button"
+                                data-reservation-id="${reservation.reservationId}">
+                            Cancel
+                        </button>
+                    `;
+                    } else if (alreadyWaitlisted) {
+                        const waitlistEntry = waitlistData.find(
+                            w => w.classId === session.classId && w.status === "Waiting"
+                        );
+
+                        buttonHtml = `
+                            <button class="action-button reserved-button" disabled>
+                                Waitlisted
+                            </button>
+
+                            <button class="action-button cancel-button leave-waitlist-button"
+                                    data-waitlist-id="${waitlistEntry.waitlistId}">
+                                Leave
+                            </button>
+                        `;
+                    } else {
+                        const buttonLabel =
+                            Number(session.availableSpots) > 0
+                                ? "Reserve"
+                                : "Join Waitlist";
+
+                        buttonHtml = `
+                        <button class="action-button reserve-button"
+                                data-class-id="${session.classId}">
+                            ${buttonLabel}
+                        </button>
+                    `;
+                    }
+
                     const row = document.createElement("tr");
 
-                    const buttonLabel =
-                        session.availableSpots > 0 ? "Reserve" : "Join Waitlist";
-
                     row.innerHTML = `
-                        <td>
-                            <div>${session.classTime}</div>
-                            <div class="duration-text">45 mins</div>
-                        </td>
-                        <td>${session.instructorName}</td>
-                        <td>
-                            <button class="action-button"
-                                    data-class-id="${session.classId}">
-                                ${buttonLabel}
-                            </button>
-                        </td>
-                    `;
+                    <td>
+                        <div>${session.classTime}</div>
+                        <div class="duration-text">45 mins</div>
+                    </td>
+
+                    <td>${session.instructorName}</td>
+
+                    <td>${buttonHtml}</td>
+                `;
 
                     tbody.appendChild(row);
                 });
             });
 
-            document.querySelectorAll(".action-button").forEach(button => {
+            document.querySelectorAll(".reserve-button").forEach(button => {
                 button.addEventListener("click", function () {
-
-                    const classId = Number(
-                        this.getAttribute("data-class-id")
-                    );
+                    const classId = Number(this.getAttribute("data-class-id"));
 
                     fetch('/api/reservations', {
                         method: 'POST',
@@ -101,7 +174,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            customerUserId: 1,
+                            customerUserId: Number(userId),
                             classId: classId
                         })
                     })
@@ -109,10 +182,41 @@
                         .then(message => {
                             alert(message);
                             location.reload();
+                        });
+                });
+            });
+
+            document.querySelectorAll(".cancel-button").forEach(button => {
+                if (button.classList.contains("leave-waitlist-button")) {
+                    return;
+                }
+
+                button.addEventListener("click", function () {
+                    const reservationId = this.getAttribute("data-reservation-id");
+                    window.location.href =
+                        `/cancel-reservation?reservationId=${reservationId}`;
+                });
+            });
+
+            document.querySelectorAll(".leave-waitlist-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    const waitlistId = this.getAttribute("data-waitlist-id");
+
+                    fetch('/api/waitlist/leave', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            waitlistId: Number(waitlistId),
+                            customerUserId: Number(userId)
                         })
-                        .catch(error =>
-                            console.error("Reservation error:", error)
-                        );
+                    })
+                        .then(response => response.text())
+                        .then(message => {
+                            alert(message);
+                            location.reload();
+                        });
                 });
             });
         })

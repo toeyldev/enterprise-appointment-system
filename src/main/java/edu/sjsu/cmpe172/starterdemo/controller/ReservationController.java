@@ -29,4 +29,17 @@ public class ReservationController {
 
         return reservationService.makeReservation(customerUserId, classId);
     }
+
+    @GetMapping("/customer/{customerUserId}")
+    public List<Reservation> getReservationsByCustomer(@PathVariable Long customerUserId) {
+        return reservationService.getReservationsByCustomer(customerUserId);
+    }
+
+    @PostMapping("/cancel")
+    public String cancelReservation(@RequestBody Map<String, Long> body) {
+        Long reservationId = body.get("reservationId");
+        Long customerUserId = body.get("customerUserId");
+
+        return reservationService.cancelReservation(reservationId, customerUserId);
+    }
 }

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<h1>Pilates Studio</h1>
+<p class="subtitle">Mat Pilates at San Jose Studio</p>
+
+<h2>Login</h2>
+
+<form id="login-form">
+    <p>
+        <label>Email</label><br>
+        <input type="email" id="email" required>
+    </p>
+
+    <p>
+        <label>Password</label><br>
+        <input type="password" id="password" required>
+    </p>
+
+    <button type="submit" class="home-button">Login</button>
+</form>
+
+<script>
+    document.getElementById("login-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message);
+                    return;
+                }
+
+                localStorage.setItem("userId", data.userId);
+                localStorage.setItem("firstName", data.firstName);
+                localStorage.setItem("lastName", data.lastName);
+                localStorage.setItem("email", data.email);
+                localStorage.setItem("role", data.role);
+
+                if (data.role === "Instructor") {
+                    window.location.href = "/instructor";
+                } else if (data.role === "Admin") {
+                    window.location.href = "/admin";
+                } else {
+                    window.location.href = "/home";
+                }
+            })
+            .catch(error => console.error("Login error:", error));
+    });
+</script>
+
+</body>
+</html>

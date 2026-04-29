@@ -6,46 +6,97 @@
 </head>
 <body>
 
-    <a href="/" class="back-link">Back to Home</a>
+<a href="/home" class="back-link">Back to Home</a>
 
-    <h1>Credits</h1>
-    <p class="subtitle">Mat Pilates at San Jose Studio</p>
+<h1>Credits</h1>
+<p class="subtitle">Mat Pilates at San Jose Studio</p>
 
-    <h2>Available balance: 11</h2>
+<h2 id="balance-text">Available balance: 0</h2>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Credits</th>
-            <th>Cost</th>
-            <th>Cost per class</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody id="credit-package-body"></tbody>
-    </table>
+<table>
+    <thead>
+    <tr>
+        <th>Credits</th>
+        <th>Cost</th>
+        <th>Cost per class</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody id="credit-package-body"></tbody>
+</table>
 
-    <script>
-        fetch('/credits')
+<script>
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        alert("Please login first.");
+        window.location.href = "/";
+    }
+
+    function loadBalance() {
+        fetch(`/api/credits/${userId}`)
             .then(response => response.json())
             .then(data => {
-                const tableBody = document.getElementById("credit-package-body");
+                document.getElementById("balance-text").textContent =
+                    `Available balance: ${data.balance}`;
+            });
+    }
 
-                data.forEach(package => {
-                    const row = document.createElement("tr");
+    loadBalance();
 
-                    row.innerHTML = `
-                        <td>${package.classesPerPackage}</td>
-                        <td>$${package.packageCost}</td>
-                        <td>$${package.costPerClass.toFixed(2)}</td>
-                        <td><button class="action-button">Buy</button></td>
-                    `;
+    fetch('/credits')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById("credit-package-body");
+            tableBody.innerHTML = "";
 
-                    tableBody.appendChild(row);
+            data.forEach(pkg => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${pkg.classesPerPackage}</td>
+                    <td>$${pkg.packageCost}</td>
+                    <td>$${pkg.costPerClass.toFixed(2)}</td>
+                    <td>
+                        <button class="action-button buy-button"
+                                data-package-id="${pkg.packageId}">
+                            Buy
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            document.querySelectorAll(".buy-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    const packageId = Number(this.getAttribute("data-package-id"));
+
+                    fetch('/api/credits/buy', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            customerUserId: Number(userId),
+                            packageId: packageId
+                        })
+                    })
+                        .then(response => response.text())
+                        .then(message => {
+                            alert(message);
+                            loadBalance();
+                        })
+                        .catch(error =>
+                            console.error("Credit purchase error:", error)
+                        );
                 });
-            })
-            .catch(error => console.error("Error loading credits:", error));
-    </script>
+            });
+        })
+        .catch(error =>
+            console.error("Error loading credits:", error)
+        );
+</script>
 
 </body>
 </html>

@@ -6,16 +6,38 @@
 </head>
 <body>
 
-    <h1>Pilates Studio</h1>
-    <p class="subtitle">Mat Pilates at San Jose Studio</p>
+<button id="logout-button" class="logout-button">Logout</button>
 
-    <h2>Welcome, [Name]!</h2>
-    <p>Browse available classes, reserve your spot, and start working
-        toward your fitness goals today!</p>
+<h1>Pilates Studio</h1>
+<p class="subtitle">Mat Pilates at San Jose Studio</p>
 
-    <p><a href="/class-schedule" class="home-button">View schedule</a></p>
-    <p><a href="/reservations" class="home-button">View reservations</a></p>
-    <p><a href="/credit-package" class="home-button">View/Buy credits</a></p>
+<h2 id="welcome-text">Welcome!</h2>
+<p id="user-info"></p>
+
+<p>Browse available classes, reserve your spot, and start working
+    toward your fitness goals today!</p>
+
+<p><a href="/class-schedule" class="home-button">View Schedule</a></p>
+<p><a href="/reservations" class="home-button">View Reservations</a></p>
+<p><a href="/credit-package" class="home-button">Buy Credits</a></p>
+<p><a href="/credit-history" class="home-button">View Credit History</a></p>
+
+<script>
+    const firstName = localStorage.getItem("firstName");
+    const role = localStorage.getItem("role");
+
+    if (firstName && role) {
+        document.getElementById("welcome-text").textContent =
+            `Welcome, ${firstName}!`;
+    }
+</script>
+
+<script>
+    document.getElementById("logout-button").addEventListener("click", function () {
+        localStorage.clear();
+        window.location.href = "/";
+    });
+</script>
 
 </body>
 </html>

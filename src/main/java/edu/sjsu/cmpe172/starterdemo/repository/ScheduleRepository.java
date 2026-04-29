@@ -111,4 +111,47 @@ public class ScheduleRepository {
 
         return results.isEmpty() ? null : results.get(0);
     }
+
+    public List<ClassSession> findByInstructorUserId(Long instructorUserId) {
+        String sql = """
+                SELECT cs.class_id,
+                       cs.class_date,
+                       cs.class_time,
+                       cs.instructor_name,
+                       cs.class_capacity,
+                       (
+                           cs.class_capacity -
+                           (
+                               SELECT COUNT(*)
+                               FROM reservations r
+                               WHERE r.class_id = cs.class_id
+                                 AND r.status = 'Booked'
+                           )
+                       ) AS available_spots,
+                       (
+                           SELECT COUNT(*)
+                           FROM waitlist w
+                           WHERE w.class_id = cs.class_id
+                             AND w.status = 'Waiting'
+                       ) AS waitlist_count
+                FROM class_sessions cs
+                WHERE cs.instructor_user_id = ?
+                ORDER BY cs.class_date, cs.class_time
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            ClassSession session = new ClassSession(
+                    rs.getLong("class_id"),
+                    rs.getString("class_date"),
+                    rs.getString("class_time"),
+                    rs.getString("instructor_name"),
+                    rs.getInt("class_capacity")
+            );
+
+            session.setAvailableSpots(rs.getInt("available_spots"));
+            session.setWaitlistCount(rs.getInt("waitlist_count"));
+
+            return session;
+        }, instructorUserId);
+    }
 }

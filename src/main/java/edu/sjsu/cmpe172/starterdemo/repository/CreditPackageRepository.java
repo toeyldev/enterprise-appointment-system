@@ -46,4 +46,23 @@ public class CreditPackageRepository {
 
         return creditPackage;
     }
+
+    public CreditPackage findById(Long packageId) {
+        String sql = """
+                    SELECT package_id, package_cost, classes_per_package
+                    FROM credit_packages
+                    WHERE package_id = ?
+                """;
+
+        return jdbcTemplate.query(sql, rs -> {
+            if (rs.next()) {
+                return new CreditPackage(
+                        rs.getLong("package_id"),
+                        rs.getDouble("package_cost"),
+                        rs.getInt("classes_per_package")
+                );
+            }
+            return null;
+        }, packageId);
+    }
 }

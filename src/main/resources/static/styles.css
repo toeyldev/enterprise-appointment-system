@@ -15,6 +15,10 @@ h1 {
     margin-bottom: 40px;
 }
 
+.reservation-section-title {
+    margin-top: 50px;
+}
+
 /* link */
 .back-link {
     text-decoration: none;
@@ -26,7 +30,6 @@ h1 {
     font-size: 14px;
 }
 
-/* table */
 /* table */
 table {
     width: 100%;
@@ -121,6 +124,52 @@ tr {
     cursor: pointer;
 }
 
+.logout-button {
+    position: absolute;
+    top: 40px;
+    right: 90px;
+
+    background: #eeeeee;
+    color: black;
+    border: none;
+    border-radius: 6px;
+
+    padding: 10px 18px;
+    font-size: 15px;
+    cursor: pointer;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.logout-button:hover {
+    background: #dcdcdc;
+}
+
+.action-button:disabled {
+    background: #d9d9d9;
+    color: #7a7a7a;
+    border: 2px solid #d9d9d9;
+    cursor: not-allowed;
+}
+
+.action-button:disabled,
+.reserved-button {
+    background: #d9d9d9;
+    color: #7a7a7a;
+    border: 2px solid #d9d9d9;
+    cursor: not-allowed;
+}
+
+.cancel-button {
+    color: #b00020;
+    border-color: #b00020;
+    margin-left: 10px;
+}
+
+.cancel-button:hover {
+    background-color: #f8e6e9;
+}
+
 /* date */
 .date-section {
     margin-top: 45px;
@@ -139,3 +188,48 @@ tr {
     font-size: 13px;
     margin-top: 4px;
 }
+
+/* cancel confirmation */
+.cancel-details {
+    margin: 24px 0 30px 0;
+    max-width: 520px;
+}
+
+.detail-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    font-size: 20px;
+    align-items: center;
+}
+
+.detail-label {
+    width: 120px;
+    font-weight: 700;
+}
+
+.detail-value {
+    font-weight: 400;
+}
+
+/* reservation history table */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.history-table th,
+.history-table td {
+    padding: 18px 0;
+    font-size: 18px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.col-date { width: 14%; }
+.col-time { width: 12%; }
+.col-instructor { width: 22%; }
+.col-main-time { width: 22%; }
+.col-secondary-time { width: 22%; }
+.col-action { width: 8%; }

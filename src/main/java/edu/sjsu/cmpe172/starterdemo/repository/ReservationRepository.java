@@ -73,4 +73,56 @@ public class ReservationRepository {
 
         return count != null && count > 0;
     }
+
+    public List<Reservation> findByCustomerUserId(Long customerUserId) {
+        String sql = """
+                SELECT reservation_id, customer_user_id, class_id, status, reserved_at, canceled_at
+                FROM reservations
+                WHERE customer_user_id = ?
+                ORDER BY reserved_at DESC
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new Reservation(
+                        rs.getLong("reservation_id"),
+                        rs.getLong("customer_user_id"),
+                        rs.getLong("class_id"),
+                        rs.getString("status"),
+                        rs.getString("reserved_at"),
+                        rs.getString("canceled_at")
+                ), customerUserId);
+    }
+
+    public int cancelReservation(Long reservationId, Long customerUserId) {
+        String sql = """
+                UPDATE reservations
+                SET status = 'Canceled',
+                    canceled_at = CURRENT_TIMESTAMP
+                WHERE reservation_id = ?
+                  AND customer_user_id = ?
+                  AND status = 'Booked'
+                """;
+
+        return jdbcTemplate.update(sql, reservationId, customerUserId);
+    }
+
+    public Reservation findById(Long reservationId) {
+        String sql = """
+                SELECT reservation_id, customer_user_id, class_id, status, reserved_at, canceled_at
+                FROM reservations
+                WHERE reservation_id = ?
+                """;
+
+        List<Reservation> results = jdbcTemplate.query(sql, (rs, rowNum) ->
+                new Reservation(
+                        rs.getLong("reservation_id"),
+                        rs.getLong("customer_user_id"),
+                        rs.getLong("class_id"),
+                        rs.getString("status"),
+                        rs.getString("reserved_at"),
+                        rs.getString("canceled_at")
+                ), reservationId);
+
+        return results.isEmpty() ? null : results.get(0);
+    }
 }

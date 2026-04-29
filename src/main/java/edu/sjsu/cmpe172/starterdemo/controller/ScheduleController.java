@@ -25,4 +25,9 @@ public class ScheduleController {
     public ClassSession createSession(@RequestBody ClassSession session) {
         return service.addClassSession(session);
     }
+
+    @GetMapping("/instructor/{instructorUserId}")
+    public List<ClassSession> getInstructorSessions(@PathVariable Long instructorUserId) {
+        return service.getSessionsByInstructor(instructorUserId);
+    }
 }

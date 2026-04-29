@@ -18,4 +18,8 @@ public class ScheduleService {
     public ClassSession addClassSession(ClassSession session) {
         return repo.save(session);
     }
+
+    public List<ClassSession> getSessionsByInstructor(Long instructorUserId) {
+        return repo.findByInstructorUserId(instructorUserId);
+    }
 }
