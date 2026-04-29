@@ -1,5 +1,7 @@
 package edu.sjsu.cmpe172.starterdemo.repository;
 
+import edu.sjsu.cmpe172.starterdemo.dto.ClassStudentListDTO;
+import edu.sjsu.cmpe172.starterdemo.dto.StudentDTO;
 import edu.sjsu.cmpe172.starterdemo.model.ClassSession;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -153,5 +155,40 @@ public class ScheduleRepository {
 
             return session;
         }, instructorUserId);
+    }
+
+    public ClassStudentListDTO getClassStudentList(Long classId) {
+        String classSql = """
+                SELECT class_date, class_time
+                FROM class_sessions
+                WHERE class_id = ?
+                """;
+
+        ClassStudentListDTO dto = jdbcTemplate.queryForObject(classSql, (rs, rowNum) -> {
+            ClassStudentListDTO result = new ClassStudentListDTO();
+            result.setClassDate(rs.getString("class_date"));
+            result.setClassTime(rs.getString("class_time"));
+            return result;
+        }, classId);
+
+        String studentsSql = """
+                SELECT u.first_name, u.last_name
+                FROM reservations r
+                JOIN users u ON r.customer_user_id = u.user_id
+                WHERE r.class_id = ?
+                  AND r.status = 'Booked'
+                ORDER BY u.first_name, u.last_name
+                """;
+
+        List<StudentDTO> students = jdbcTemplate.query(studentsSql, (rs, rowNum) ->
+                new StudentDTO(
+                        rs.getString("first_name"),
+                        rs.getString("last_name")
+                ), classId);
+
+        dto.setStudents(students);
+        dto.setTotalStudents(students.size());
+
+        return dto;
     }
 }

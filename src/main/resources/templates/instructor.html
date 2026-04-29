@@ -21,6 +21,7 @@
         <th>Capacity</th>
         <th>Booked</th>
         <th>Waitlist</th>
+        <th>Action</th>
     </tr>
     </thead>
     <tbody id="instructor-classes-body"></tbody>
@@ -47,7 +48,6 @@
 
             data.forEach(session => {
                 const booked = session.classCapacity - session.availableSpots;
-
                 const row = document.createElement("tr");
 
                 row.innerHTML = `
@@ -56,12 +56,64 @@
                     <td>${session.classCapacity}</td>
                     <td>${booked}</td>
                     <td>${session.waitlistCount}</td>
+                    <td>
+                        <button class="action-button view-students-button" data-class-id="${session.classId}">
+                            View Students
+                        </button>
+                    </td>
                 `;
 
                 tableBody.appendChild(row);
             });
+
+            document.querySelectorAll(".view-students-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    const classId = this.getAttribute("data-class-id");
+                    loadStudents(classId, this);
+                });
+            });
         })
         .catch(error => console.error("Error loading instructor classes:", error));
+
+    function loadStudents(classId, button) {
+        const currentRow = button.closest("tr");
+
+        const existingRow = document.getElementById(`students-row-${classId}`);
+
+        // If already open → collapse
+        if (existingRow) {
+            existingRow.remove();
+            button.textContent = "View Students";
+            return;
+        }
+
+        // Otherwise → open
+        fetch(`/schedule/classes/${classId}/students`)
+            .then(response => response.json())
+            .then(data => {
+                const studentRow = document.createElement("tr");
+                studentRow.id = `students-row-${classId}`;
+
+                const names = data.students.map(student =>
+                    `<p>${student.firstName} ${student.lastName}</p>`
+                ).join("");
+
+                studentRow.innerHTML = `
+                <td colspan="6">
+                    <div class="student-list-box">
+                        <strong>Student List</strong>
+                        ${names}
+                    </div>
+                </td>
+            `;
+
+                currentRow.insertAdjacentElement("afterend", studentRow);
+
+                // Change button text
+                button.textContent = "Hide Students";
+            })
+            .catch(error => console.error("Error loading students:", error));
+    }
 
     document.getElementById("logout-button").addEventListener("click", function () {
         localStorage.clear();
