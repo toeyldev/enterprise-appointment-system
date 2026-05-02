@@ -16,6 +16,34 @@
 <p>Use this page to manage class schedules, monitor system health, and view booking metrics.</p>
 
 <div class="admin-section">
+    <h2>Add New Class</h2>
+
+    <p>
+        <label>Date</label><br>
+        <input type="date" id="new-class-date">
+    </p>
+
+    <p>
+        <label>Time</label><br>
+        <select id="new-class-time" class="admin-select"></select>
+    </p>
+
+    <p>
+        <label>Instructor</label><br>
+        <select id="new-class-instructor" class="admin-select"></select>
+    </p>
+
+    <p>
+        <label>Capacity</label><br>
+        <input type="number" id="new-class-capacity" value="10" min="1">
+    </p>
+
+    <button class="action-button" onclick="addNewClass()">
+        Add Class
+    </button>
+</div>
+
+<div class="admin-section">
     <h2>System Health</h2>
     <div id="health-info"></div>
 </div>
@@ -49,6 +77,8 @@
     const firstName = localStorage.getItem("firstName");
     const role = localStorage.getItem("role");
 
+    let instructors = [];
+
     if (!userId || role !== "Admin") {
         alert("Admin login required.");
         window.location.href = "/";
@@ -57,106 +87,191 @@
     document.getElementById("welcome-text").textContent =
         `Welcome, ${firstName}!`;
 
-    fetch('/health')
-        .then(response => response.json())
-        .then(data => {
+    Promise.all([
+        fetch('/health').then(res => res.json()),
+        fetch('/metrics').then(res => res.json()),
+        fetch('/api/admin/instructors').then(res => res.json()),
+        fetch('/schedule').then(res => res.json())
+    ])
+        .then(([healthData, metricsData, instructorData, scheduleData]) => {
+            instructors = instructorData;
+
+            loadNewClassInstructorDropdown();
+            loadTimeOptions();
+
             document.getElementById("health-info").innerHTML = `
-                <p><strong>Status:</strong> ${data.status}</p>
-                <p><strong>Service:</strong> ${data.service}</p>
-                <p><strong>Database:</strong> ${data.database}</p>
-                <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+                <p><strong>Status:</strong> ${healthData.status}</p>
+                <p><strong>Service:</strong> ${healthData.service}</p>
+                <p><strong>Database:</strong> ${healthData.database}</p>
+                <p><strong>Timestamp:</strong> ${healthData.timestamp}</p>
             `;
-        });
 
-    fetch('/metrics')
-        .then(response => response.json())
-        .then(data => {
             document.getElementById("metrics-info").innerHTML = `
-                <p><strong>Successful Bookings:</strong> ${data.successfulBookings}</p>
-                <p><strong>Failed Bookings:</strong> ${data.failedBookings}</p>
-                <p><strong>Average Booking Latency:</strong> ${data.averageBookingLatencyMs.toFixed(2)} ms</p>
+                <p><strong>Successful Bookings:</strong> ${metricsData.successfulBookings}</p>
+                <p><strong>Failed Bookings:</strong> ${metricsData.failedBookings}</p>
+                <p><strong>Average Booking Latency:</strong> ${metricsData.averageBookingLatencyMs.toFixed(2)} ms</p>
+            `;
+
+            loadClassTable(scheduleData);
+        });
+
+    function loadTimeOptions() {
+        const select = document.getElementById("new-class-time");
+        select.innerHTML = `<option value="">Select time</option>`;
+
+        for (let hour = 8; hour <= 19; hour++) {
+            [0, 15, 30, 45].forEach(minute => {
+                const date = new Date();
+                date.setHours(hour);
+                date.setMinutes(minute);
+
+                const formatted = date.toLocaleTimeString("en-US", {
+                    hour: "numeric",
+                    minute: "2-digit"
+                });
+
+                const option = document.createElement("option");
+                option.value = formatted;
+                option.textContent = formatted;
+
+                select.appendChild(option);
+            });
+        }
+    }
+
+    function loadNewClassInstructorDropdown() {
+        const select = document.getElementById("new-class-instructor");
+        select.innerHTML = `<option value="">Select instructor</option>`;
+
+        instructors.forEach(inst => {
+            const option = document.createElement("option");
+            option.value = inst.userId;
+            option.textContent = `${inst.firstName} ${inst.lastName}`;
+            select.appendChild(option);
+        });
+    }
+
+    function buildInstructorDropdown(classId) {
+        let options = `<option value="">Select instructor</option>`;
+
+        instructors.forEach(inst => {
+            options += `
+                <option value="${inst.userId}">
+                    ${inst.firstName} ${inst.lastName}
+                </option>
             `;
         });
 
-    fetch('/schedule')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.getElementById("admin-classes-body");
-            tableBody.innerHTML = "";
+        return `
+            <select id="instructor-select-${classId}" class="admin-select">
+                ${options}
+            </select>
+        `;
+    }
 
-            data.forEach(session => {
-                const row = document.createElement("tr");
+    function loadClassTable(data) {
+        const tableBody = document.getElementById("admin-classes-body");
+        tableBody.innerHTML = "";
 
-                row.innerHTML = `
-                    <td>${session.classDate}</td>
-                    <td>${session.classTime}</td>
-                    <td>${session.instructorName}</td>
-                    <td>${session.classCapacity}</td>
-                    <td>${session.availableSpots}</td>
-                    <td>${session.waitlistCount}</td>
-                    <td>
+        data.forEach(session => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${session.classDate}</td>
+                <td>${session.classTime}</td>
+                <td>${session.instructorName}</td>
+                <td>${session.classCapacity}</td>
+                <td>${session.availableSpots}</td>
+                <td>${session.waitlistCount}</td>
+                <td>
+                    <div class="admin-action-cell">
                         <button class="action-button cancel-button"
                                 onclick="cancelClass(${session.classId})">
-                            Cancel Class
+                            Cancel
                         </button>
+
+                        ${buildInstructorDropdown(session.classId)}
 
                         <button class="action-button"
                                 onclick="updateClassInstructor(${session.classId})">
-                            Update Instructor
+                            Update
                         </button>
-                    </td>
-                `;
+                    </div>
+                </td>
+            `;
 
-                tableBody.appendChild(row);
-            });
+            tableBody.appendChild(row);
         });
+    }
 
-    function cancelClass(classId) {
-        if (!confirm("Are you sure you want to cancel this class?")) {
+    function addNewClass() {
+        const classDate = document.getElementById("new-class-date").value;
+        const classTime = document.getElementById("new-class-time").value;
+        const instructorUserId = document.getElementById("new-class-instructor").value;
+        const classCapacity = document.getElementById("new-class-capacity").value;
+
+        if (!classDate || !classTime || !instructorUserId || !classCapacity) {
+            alert("Please fill out all fields.");
             return;
         }
 
-        fetch('/api/admin/classes/cancel', {
+        fetch('/api/admin/classes', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                classId: classId
+                classDate,
+                classTime,
+                instructorUserId: Number(instructorUserId),
+                classCapacity: Number(classCapacity)
             })
         })
-            .then(response => response.text())
-            .then(message => {
-                alert(message);
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
+                location.reload();
+            });
+    }
+
+    function cancelClass(classId) {
+        if (!confirm("Cancel this class?")) return;
+
+        fetch('/api/admin/classes/cancel', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({classId})
+        })
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
                 location.reload();
             });
     }
 
     function updateClassInstructor(classId) {
-        const instructorUserId = prompt("Enter the new instructor user ID:");
+        const select = document.getElementById(`instructor-select-${classId}`);
+        const instructorUserId = select.value;
 
         if (!instructorUserId) {
+            alert("Select an instructor.");
             return;
         }
 
         fetch('/api/admin/classes/update-instructor', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                classId: classId,
+                classId,
                 instructorUserId: Number(instructorUserId)
             })
         })
-            .then(response => response.text())
-            .then(message => {
-                alert(message);
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
                 location.reload();
             });
     }
 
-    document.getElementById("logout-button").addEventListener("click", function () {
+    document.getElementById("logout-button").addEventListener("click", () => {
         localStorage.clear();
         window.location.href = "/";
     });

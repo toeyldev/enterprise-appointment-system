@@ -15,26 +15,6 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public User findById(Long userId) {
-        String sql = """
-                SELECT user_id, first_name, last_name, email, password, role
-                FROM users
-                WHERE user_id = ?
-                """;
-
-        List<User> results = jdbcTemplate.query(sql, (rs, rowNum) ->
-                new User(
-                        rs.getLong("user_id"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("role")
-                ), userId);
-
-        return results.isEmpty() ? null : results.get(0);
-    }
-
     public User findByEmail(String email) {
         String sql = """
                 SELECT user_id, first_name, last_name, email, password, role
@@ -42,7 +22,7 @@ public class UserRepository {
                 WHERE email = ?
                 """;
 
-        List<User> results = jdbcTemplate.query(sql, (rs, rowNum) ->
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) ->
                 new User(
                         rs.getLong("user_id"),
                         rs.getString("first_name"),
@@ -51,8 +31,24 @@ public class UserRepository {
                         rs.getString("password"),
                         rs.getString("role")
                 ), email);
+    }
 
-        return results.isEmpty() ? null : results.get(0);
+    public User findById(Long userId) {
+        String sql = """
+                SELECT user_id, first_name, last_name, email, password, role
+                FROM users
+                WHERE user_id = ?
+                """;
+
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) ->
+                new User(
+                        rs.getLong("user_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("email"),
+                        rs.getString("password"),
+                        rs.getString("role")
+                ), userId);
     }
 
     public List<User> findByRole(String role) {
@@ -60,7 +56,6 @@ public class UserRepository {
                 SELECT user_id, first_name, last_name, email, password, role
                 FROM users
                 WHERE role = ?
-                ORDER BY first_name, last_name
                 """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) ->

@@ -50,4 +50,14 @@ public class ClassCreditRepository {
         int rows = jdbcTemplate.update(sql, customerUserId);
         return rows > 0;
     }
+
+    public void addCredit(Long customerUserId, int amount) {
+        String sql = """
+                UPDATE class_credits
+                SET balance = balance + ?
+                WHERE customer_user_id = ?
+                """;
+
+        jdbcTemplate.update(sql, amount, customerUserId);
+    }
 }

@@ -57,7 +57,13 @@ public class AdminService {
             return "Class not found or already canceled.";
         }
 
-        return "Class canceled successfully.";
+        int canceledReservations =
+                adminRepository.cancelBookedReservationsForClass(classId);
+
+        adminRepository.refundCreditsForCanceledClass(classId);
+
+        return "Class canceled successfully. " + canceledReservations +
+                " booked customer(s) were refunded.";
     }
 
     @Transactional

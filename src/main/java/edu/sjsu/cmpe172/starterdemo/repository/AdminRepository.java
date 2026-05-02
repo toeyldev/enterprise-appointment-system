@@ -36,11 +36,11 @@ public class AdminRepository {
 
     public int cancelClass(Long classId) {
         String sql = """
-                UPDATE class_sessions
-                SET status = 'Canceled'
-                WHERE class_id = ?
-                  AND status = 'Active'
-                """;
+            UPDATE class_sessions
+            SET status = 'Canceled'
+            WHERE class_id = ?
+              AND status = 'Active'
+            """;
 
         return jdbcTemplate.update(sql, classId);
     }
@@ -62,5 +62,29 @@ public class AdminRepository {
                 instructorName,
                 classId
         );
+    }
+
+    public int cancelBookedReservationsForClass(Long classId) {
+        String sql = """
+                UPDATE reservations
+                SET status = 'Canceled by Admin',
+                    canceled_at = CURRENT_TIMESTAMP
+                WHERE class_id = ?
+                  AND status = 'Booked'
+                """;
+
+        return jdbcTemplate.update(sql, classId);
+    }
+
+    public void refundCreditsForCanceledClass(Long classId) {
+        String sql = """
+                UPDATE class_credit cc
+                JOIN reservations r ON cc.customer_user_id = r.customer_user_id
+                SET cc.remaining_credit = cc.remaining_credit + 1
+                WHERE r.class_id = ?
+                  AND r.status = 'Canceled by Admin'
+                """;
+
+        jdbcTemplate.update(sql, classId);
     }
 }

@@ -251,9 +251,25 @@ tr {
     width: 8%;
 }
 
-/* section */
+/* admin */
 .admin-section {
     margin-top: 45px;
     padding-top: 25px;
     border-top: 2px solid #ddd;
+}
+
+.admin-action-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-select {
+    padding: 10px 14px;
+    border: 2px solid #c3c4c3;
+    border-radius: 30px;
+    font-size: 15px;
+    background-color: white;
+    color: #4a4a4a;
+    min-width: 170px;
 }

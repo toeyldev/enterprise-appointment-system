@@ -67,7 +67,7 @@
     Promise.all([
         fetch(`/api/reservations/customer/${userId}`).then(r => r.json()),
         fetch(`/api/waitlist/customer/${userId}`).then(r => r.json()),
-        fetch('/schedule').then(r => r.json())
+        fetch('/schedule/all').then(r => r.json())
     ])
         .then(([reservations, waitlist, schedules]) => {
 
@@ -111,7 +111,7 @@
                     bookedBody.appendChild(row);
                 }
 
-                if (reservation.status === "Canceled") {
+                if (reservation.status === "Canceled" || reservation.status === "Canceled by Admin") {
                     row.innerHTML = `
                 <td>${classDate}</td>
                 <td>${classTime}</td>

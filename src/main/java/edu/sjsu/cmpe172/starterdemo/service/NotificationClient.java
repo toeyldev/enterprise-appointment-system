@@ -1,7 +1,6 @@
 package edu.sjsu.cmpe172.starterdemo.service;
 
 import edu.sjsu.cmpe172.starterdemo.model.NotificationRequest;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,12 +12,27 @@ public class NotificationClient {
     public String sendReservationConfirmation(NotificationRequest request) {
         String url = "http://localhost:8080/mock-notifications/send";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        try {
+            return restTemplate.postForObject(url, request, String.class);
+        } catch (Exception e) {
+            return "Notification failed: " + e.getMessage();
+        }
+    }
 
-        HttpEntity<NotificationRequest> entity = new HttpEntity<>(request, headers);
+    public void sendNotification(Long customerUserId, Long classId, String email, String message) {
+        NotificationRequest request = new NotificationRequest(
+                customerUserId,
+                classId,
+                email,
+                message
+        );
 
-        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-        return response.getBody();
+        String url = "http://localhost:8080/mock-notifications/send";
+
+        try {
+            restTemplate.postForObject(url, request, String.class);
+        } catch (Exception e) {
+            System.out.println("Notification failed: " + e.getMessage());
+        }
     }
 }

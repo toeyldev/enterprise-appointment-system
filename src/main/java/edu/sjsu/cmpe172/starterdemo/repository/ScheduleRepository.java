@@ -61,8 +61,8 @@ public class ScheduleRepository {
     public ClassSession save(ClassSession session) {
         String sql = """
                 INSERT INTO class_sessions
-                (class_date, class_time, instructor_name, class_capacity)
-                VALUES (?, ?, ?, ?)
+                (class_date, class_time, instructor_name, class_capacity, status)
+                VALUES (?, ?, ?, ?, 'Active')
                 """;
 
         jdbcTemplate.update(
@@ -100,6 +100,7 @@ public class ScheduleRepository {
                 SELECT class_id, class_date, class_time, instructor_name, class_capacity
                 FROM class_sessions
                 WHERE class_id = ?
+                  AND status = 'Active'
                 FOR UPDATE
                 """;
 
@@ -192,5 +193,52 @@ public class ScheduleRepository {
         dto.setTotalStudents(students.size());
 
         return dto;
+    }
+
+    public void deleteById(Long classId) {
+        String sql = "DELETE FROM class_sessions WHERE class_id = ?";
+        jdbcTemplate.update(sql, classId);
+    }
+
+    public List<ClassSession> findAllIncludingCanceled() {
+        String sql = """
+                SELECT cs.class_id,
+                       cs.class_date,
+                       cs.class_time,
+                       cs.instructor_name,
+                       cs.class_capacity,
+                       (
+                           cs.class_capacity -
+                           (
+                               SELECT COUNT(*)
+                               FROM reservations r
+                               WHERE r.class_id = cs.class_id
+                                 AND r.status = 'Booked'
+                           )
+                       ) AS available_spots,
+                       (
+                           SELECT COUNT(*)
+                           FROM waitlist w
+                           WHERE w.class_id = cs.class_id
+                             AND w.status = 'Waiting'
+                       ) AS waitlist_count
+                FROM class_sessions cs
+                ORDER BY cs.class_date, cs.class_time
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            ClassSession session = new ClassSession(
+                    rs.getLong("class_id"),
+                    rs.getString("class_date"),
+                    rs.getString("class_time"),
+                    rs.getString("instructor_name"),
+                    rs.getInt("class_capacity")
+            );
+
+            session.setAvailableSpots(rs.getInt("available_spots"));
+            session.setWaitlistCount(rs.getInt("waitlist_count"));
+
+            return session;
+        });
     }
 }

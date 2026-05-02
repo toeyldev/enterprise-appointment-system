@@ -128,4 +128,9 @@ public class WaitlistRepository {
 
         jdbcTemplate.update(sql, waitlistId);
     }
+
+    public void deleteByClassId(Long classId) {
+        String sql = "DELETE FROM waitlist WHERE class_id = ?";
+        jdbcTemplate.update(sql, classId);
+    }
 }

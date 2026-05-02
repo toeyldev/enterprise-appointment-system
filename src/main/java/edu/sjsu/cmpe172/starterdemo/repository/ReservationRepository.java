@@ -20,6 +20,10 @@ public class ReservationRepository {
                 INSERT INTO reservations
                 (customer_user_id, class_id, status, reserved_at, canceled_at)
                 VALUES (?, ?, 'Booked', CURRENT_TIMESTAMP, NULL)
+                ON DUPLICATE KEY UPDATE
+                    status = 'Booked',
+                    reserved_at = CURRENT_TIMESTAMP,
+                    canceled_at = NULL
                 """;
 
         jdbcTemplate.update(sql, customerUserId, classId);
@@ -124,5 +128,29 @@ public class ReservationRepository {
                 ), reservationId);
 
         return results.isEmpty() ? null : results.get(0);
+    }
+
+    public List<Reservation> findBookedReservationsByClassId(Long classId) {
+        String sql = """
+                SELECT reservation_id, customer_user_id, class_id, status, reserved_at, canceled_at
+                FROM reservations
+                WHERE class_id = ?
+                  AND status = 'Booked'
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new Reservation(
+                        rs.getLong("reservation_id"),
+                        rs.getLong("customer_user_id"),
+                        rs.getLong("class_id"),
+                        rs.getString("status"),
+                        rs.getString("reserved_at"),
+                        rs.getString("canceled_at")
+                ), classId);
+    }
+
+    public void deleteByClassId(Long classId) {
+        String sql = "DELETE FROM reservations WHERE class_id = ?";
+        jdbcTemplate.update(sql, classId);
     }
 }
