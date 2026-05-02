@@ -40,6 +40,7 @@ public class ScheduleRepository {
                              AND w.status = 'Waiting'
                        ) AS waitlist_count
                 FROM class_sessions cs
+                WHERE cs.status = 'Active'
                 ORDER BY cs.class_id
                 """;
 
@@ -138,6 +139,7 @@ public class ScheduleRepository {
                        ) AS waitlist_count
                 FROM class_sessions cs
                 WHERE cs.instructor_user_id = ?
+                  AND cs.status = 'Active'
                 ORDER BY cs.class_date, cs.class_time
                 """;
 

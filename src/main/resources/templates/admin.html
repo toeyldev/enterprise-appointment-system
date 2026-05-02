@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<button id="logout-button" class="logout-button">Logout</button>
+
+<h1>Admin Dashboard</h1>
+<p class="subtitle">Pilates Studio System Overview</p>
+
+<h2 id="welcome-text">Welcome!</h2>
+
+<p>Use this page to manage class schedules, monitor system health, and view booking metrics.</p>
+
+<div class="admin-section">
+    <h2>System Health</h2>
+    <div id="health-info"></div>
+</div>
+
+<div class="admin-section">
+    <h2>Booking Metrics</h2>
+    <div id="metrics-info"></div>
+</div>
+
+<div class="admin-section">
+    <h2>Class Overview</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Instructor</th>
+            <th>Capacity</th>
+            <th>Available</th>
+            <th>Waitlist</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="admin-classes-body"></tbody>
+    </table>
+</div>
+
+<script>
+    const userId = localStorage.getItem("userId");
+    const firstName = localStorage.getItem("firstName");
+    const role = localStorage.getItem("role");
+
+    if (!userId || role !== "Admin") {
+        alert("Admin login required.");
+        window.location.href = "/";
+    }
+
+    document.getElementById("welcome-text").textContent =
+        `Welcome, ${firstName}!`;
+
+    fetch('/health')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("health-info").innerHTML = `
+                <p><strong>Status:</strong> ${data.status}</p>
+                <p><strong>Service:</strong> ${data.service}</p>
+                <p><strong>Database:</strong> ${data.database}</p>
+                <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+            `;
+        });
+
+    fetch('/metrics')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("metrics-info").innerHTML = `
+                <p><strong>Successful Bookings:</strong> ${data.successfulBookings}</p>
+                <p><strong>Failed Bookings:</strong> ${data.failedBookings}</p>
+                <p><strong>Average Booking Latency:</strong> ${data.averageBookingLatencyMs.toFixed(2)} ms</p>
+            `;
+        });
+
+    fetch('/schedule')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById("admin-classes-body");
+            tableBody.innerHTML = "";
+
+            data.forEach(session => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${session.classDate}</td>
+                    <td>${session.classTime}</td>
+                    <td>${session.instructorName}</td>
+                    <td>${session.classCapacity}</td>
+                    <td>${session.availableSpots}</td>
+                    <td>${session.waitlistCount}</td>
+                    <td>
+                        <button class="action-button cancel-button"
+                                onclick="cancelClass(${session.classId})">
+                            Cancel Class
+                        </button>
+
+                        <button class="action-button"
+                                onclick="updateClassInstructor(${session.classId})">
+                            Update Instructor
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        });
+
+    function cancelClass(classId) {
+        if (!confirm("Are you sure you want to cancel this class?")) {
+            return;
+        }
+
+        fetch('/api/admin/classes/cancel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                classId: classId
+            })
+        })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                location.reload();
+            });
+    }
+
+    function updateClassInstructor(classId) {
+        const instructorUserId = prompt("Enter the new instructor user ID:");
+
+        if (!instructorUserId) {
+            return;
+        }
+
+        fetch('/api/admin/classes/update-instructor', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                classId: classId,
+                instructorUserId: Number(instructorUserId)
+            })
+        })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                location.reload();
+            });
+    }
+
+    document.getElementById("logout-button").addEventListener("click", function () {
+        localStorage.clear();
+        window.location.href = "/";
+    });
+</script>
+
+</body>
+</html>

@@ -9,6 +9,7 @@ public class ClassSession {
     private int classCapacity;
     private int availableSpots; // Derived attribute
     private int waitlistCount;
+    private Long instructorUserId;
 
     public ClassSession() {
     }
@@ -75,5 +76,13 @@ public class ClassSession {
 
     public void setWaitlistCount(int waitlistCount) {
         this.waitlistCount = waitlistCount;
+    }
+
+    public Long getInstructorUserId() {
+        return instructorUserId;
+    }
+
+    public void setInstructorUserId(Long instructorUserId) {
+        this.instructorUserId = instructorUserId;
     }
 }

@@ -54,4 +54,23 @@ public class UserRepository {
 
         return results.isEmpty() ? null : results.get(0);
     }
+
+    public List<User> findByRole(String role) {
+        String sql = """
+                SELECT user_id, first_name, last_name, email, password, role
+                FROM users
+                WHERE role = ?
+                ORDER BY first_name, last_name
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new User(
+                        rs.getLong("user_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("email"),
+                        rs.getString("password"),
+                        rs.getString("role")
+                ), role);
+    }
 }

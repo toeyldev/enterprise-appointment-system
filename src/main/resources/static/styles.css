@@ -227,9 +227,33 @@ tr {
     word-wrap: break-word;
 }
 
-.col-date { width: 14%; }
-.col-time { width: 12%; }
-.col-instructor { width: 22%; }
-.col-main-time { width: 22%; }
-.col-secondary-time { width: 22%; }
-.col-action { width: 8%; }
+.col-date {
+    width: 14%;
+}
+
+.col-time {
+    width: 12%;
+}
+
+.col-instructor {
+    width: 22%;
+}
+
+.col-main-time {
+    width: 22%;
+}
+
+.col-secondary-time {
+    width: 22%;
+}
+
+.col-action {
+    width: 8%;
+}
+
+/* section */
+.admin-section {
+    margin-top: 45px;
+    padding-top: 25px;
+    border-top: 2px solid #ddd;
+}
