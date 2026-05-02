@@ -50,4 +50,9 @@ public class PageController {
     public String creditHistory() {
         return "credit-history";
     }
+
+    @GetMapping("/confirm-reservation")
+    public String confirmReservation() {
+        return "confirm-reservation.html";
+    }
 }

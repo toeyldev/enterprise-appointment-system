@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Reservation</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<a href="/class-schedule" class="back-link">Back to Schedule</a>
+
+<h1>Confirm Reservation</h1>
+<p class="subtitle">Mat Pilates at San Jose Studio</p>
+
+<h2>Are you sure you want to reserve this class?</h2>
+
+<div id="class-info" class="cancel-details"></div>
+
+<button id="confirm-reserve-button" class="action-button confirm-outline-button">
+    Confirm Reservation
+</button>
+
+<script>
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        alert("Please login first.");
+        window.location.href = "/";
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const classId = params.get("classId");
+
+    fetch('/schedule')
+        .then(response => response.json())
+        .then(schedules => {
+            const session = schedules.find(s => s.classId == classId);
+
+            if (!session) {
+                document.getElementById("class-info").textContent =
+                    "Class not found.";
+                return;
+            }
+
+            document.getElementById("class-info").innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">${session.classDate}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Time</span>
+                    <span class="detail-value">${session.classTime}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Instructor</span>
+                    <span class="detail-value">${session.instructorName}</span>
+                </div>
+            `;
+        });
+
+    document.getElementById("confirm-reserve-button")
+        .addEventListener("click", function () {
+
+            fetch('/api/reservations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    customerUserId: Number(userId),
+                    classId: Number(classId)
+                })
+            })
+                .then(response => response.text())
+                .then(message => {
+                    alert(message);
+                    window.location.href = "/reservations";
+                })
+                .catch(error =>
+                    console.error("Reservation error:", error)
+                );
+        });
+</script>
+
+</body>
+</html>

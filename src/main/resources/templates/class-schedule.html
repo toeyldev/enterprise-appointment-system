@@ -168,21 +168,7 @@
                 button.addEventListener("click", function () {
                     const classId = Number(this.getAttribute("data-class-id"));
 
-                    fetch('/api/reservations', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            customerUserId: Number(userId),
-                            classId: classId
-                        })
-                    })
-                        .then(response => response.text())
-                        .then(message => {
-                            alert(message);
-                            location.reload();
-                        });
+                    window.location.href = `/confirm-reservation?classId=${classId}`;
                 });
             });
 
