@@ -17,10 +17,28 @@
 <p>Browse available classes, reserve your spot, and start working
     toward your fitness goals today!</p>
 
-<p><a href="/class-schedule" class="home-button">View Schedule</a></p>
-<p><a href="/reservations" class="home-button">View Reservations</a></p>
-<p><a href="/credit-package" class="home-button">Buy Credits</a></p>
-<p><a href="/credit-history" class="home-button">View Credit History</a></p>
+<div class="user-stats-section">
+
+    <h2>Upcoming Classes</h2>
+
+    <div class="user-stat-card">
+        <div class="user-stat-number"
+             id="upcoming-class-count">0
+        </div>
+    </div>
+
+</div>
+
+<div class="user-actions-section">
+
+    <h2 class="user-actions-title">Quick Actions</h2>
+
+    <p><a href="/class-schedule" class="home-button">View Schedule</a></p>
+    <p><a href="/reservations" class="home-button">View Reservations</a></p>
+    <p><a href="/credit-package" class="home-button">Buy Credits</a></p>
+    <p><a href="/credit-history" class="home-button">View Credit History</a></p>
+
+</div>
 
 <script>
     const firstName = localStorage.getItem("firstName");
@@ -37,6 +55,25 @@
         localStorage.clear();
         window.location.href = "/";
     });
+</script>
+
+<script>
+    const userId = localStorage.getItem("userId");
+
+    fetch(`/api/reservations/customer/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+
+            const upcomingCount = data.filter(reservation =>
+                reservation.status === "Booked"
+            ).length;
+
+            document.getElementById("upcoming-class-count").textContent =
+                upcomingCount;
+        })
+        .catch(error =>
+            console.error("Error loading upcoming classes:", error)
+        );
 </script>
 
 </body>
