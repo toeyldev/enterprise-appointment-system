@@ -25,4 +25,19 @@ public class CreditPackageController {
     public CreditPackage createPackage(@RequestBody CreditPackage creditPackage) {
         return service.addCreditPackage(creditPackage);
     }
+
+    @PutMapping("/{packageId}")
+    public String updatePackage(@PathVariable Long packageId,
+                                @RequestBody CreditPackage creditPackage) {
+        return service.updateCreditPackage(
+                packageId,
+                creditPackage.getPackageCost(),
+                creditPackage.getClassesPerPackage()
+        );
+    }
+
+    @DeleteMapping("/{packageId}")
+    public String deletePackage(@PathVariable Long packageId) {
+        return service.deleteCreditPackage(packageId);
+    }
 }

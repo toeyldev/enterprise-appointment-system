@@ -55,4 +55,26 @@ public class CreditPackageService {
 
         return credits + " credits purchased successfully.";
     }
+
+    @Transactional
+    public String updateCreditPackage(Long packageId, double packageCost, int classesPerPackage) {
+        int rowsUpdated = repo.updatePackage(packageId, packageCost, classesPerPackage);
+
+        if (rowsUpdated == 0) {
+            return "Credit package not found.";
+        }
+
+        return "Credit package updated successfully.";
+    }
+
+    @Transactional
+    public String deleteCreditPackage(Long packageId) {
+        int rowsDeleted = repo.deletePackage(packageId);
+
+        if (rowsDeleted == 0) {
+            return "Credit package not found.";
+        }
+
+        return "Credit package removed successfully.";
+    }
 }

@@ -75,6 +75,40 @@
     </table>
 </div>
 
+<div class="admin-section">
+    <h2>Credit Package Management</h2>
+
+    <h3>Add New Credit Package</h3>
+
+    <p>
+        <label>Package Cost</label><br>
+        <input type="number" id="new-package-cost" min="1" step="0.01">
+    </p>
+
+    <p>
+        <label>Classes Per Package</label><br>
+        <input type="number" id="new-classes-per-package" min="1">
+    </p>
+
+    <button class="action-button" onclick="addCreditPackage()">
+        Add Package
+    </button>
+
+    <h3>Current Credit Packages</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Cost</th>
+            <th>Classes</th>
+            <th>Cost Per Class</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="admin-credit-packages-body"></tbody>
+    </table>
+</div>
+
 <script>
     const userId = localStorage.getItem("userId");
     const firstName = localStorage.getItem("firstName");
@@ -90,39 +124,36 @@
     document.getElementById("welcome-text").textContent =
         `Welcome, ${firstName}!`;
 
-    // ================= LOAD DATA =================
     Promise.all([
         fetch('/health').then(res => res.json()),
         fetch('/metrics').then(res => res.json()),
         fetch('/api/admin/instructors').then(res => res.json()),
-        fetch('/schedule').then(res => res.json())
+        fetch('/schedule').then(res => res.json()),
+        fetch('/credits').then(res => res.json())
     ])
-        .then(([healthData, metricsData, instructorData, scheduleData]) => {
-
+        .then(([healthData, metricsData, instructorData, scheduleData, creditPackages]) => {
             instructors = instructorData;
 
             loadTimeOptions();
             loadNewClassInstructorDropdown();
 
-            // Health
             document.getElementById("health-info").innerHTML = `
-            <p><strong>Status:</strong> ${healthData.status}</p>
-            <p><strong>Service:</strong> ${healthData.service}</p>
-            <p><strong>Database:</strong> ${healthData.database}</p>
-            <p><strong>Timestamp:</strong> ${healthData.timestamp}</p>
-        `;
+                <p><strong>Status:</strong> ${healthData.status}</p>
+                <p><strong>Service:</strong> ${healthData.service}</p>
+                <p><strong>Database:</strong> ${healthData.database}</p>
+                <p><strong>Timestamp:</strong> ${healthData.timestamp}</p>
+            `;
 
-            // Metrics
             document.getElementById("metrics-info").innerHTML = `
-            <p><strong>Successful Bookings:</strong> ${metricsData.successfulBookings}</p>
-            <p><strong>Failed Bookings:</strong> ${metricsData.failedBookings}</p>
-            <p><strong>Average Booking Latency:</strong> ${metricsData.averageBookingLatencyMs.toFixed(2)} ms</p>
-        `;
+                <p><strong>Successful Bookings:</strong> ${metricsData.successfulBookings}</p>
+                <p><strong>Failed Bookings:</strong> ${metricsData.failedBookings}</p>
+                <p><strong>Average Booking Latency:</strong> ${metricsData.averageBookingLatencyMs.toFixed(2)} ms</p>
+            `;
 
             loadClassTable(scheduleData);
+            loadCreditPackageTable(creditPackages);
         });
 
-    // ================= TIME DROPDOWN =================
     function loadTimeOptions() {
         const select = document.getElementById("new-class-time");
         select.innerHTML = `<option value="">Select time</option>`;
@@ -141,13 +172,11 @@
                 const option = document.createElement("option");
                 option.value = formatted;
                 option.textContent = formatted;
-
                 select.appendChild(option);
             });
         }
     }
 
-    // ================= INSTRUCTOR DROPDOWN =================
     function loadNewClassInstructorDropdown() {
         const select = document.getElementById("new-class-instructor");
         select.innerHTML = `<option value="">Select instructor</option>`;
@@ -178,7 +207,6 @@
         `;
     }
 
-    // ================= TABLE =================
     function loadClassTable(data) {
         const tableBody = document.getElementById("admin-classes-body");
         tableBody.innerHTML = "";
@@ -195,7 +223,6 @@
                 <td>${session.waitlistCount}</td>
                 <td>
                     <div class="admin-action-cell">
-
                         <button class="action-button cancel-button"
                                 onclick="cancelClass(${session.classId})">
                             Cancel
@@ -207,7 +234,6 @@
                                 onclick="updateClassInstructor(${session.classId})">
                             Update
                         </button>
-
                     </div>
                 </td>
             `;
@@ -216,7 +242,52 @@
         });
     }
 
-    // ================= ACTIONS =================
+    function loadCreditPackageTable(packages) {
+        const tableBody = document.getElementById("admin-credit-packages-body");
+        tableBody.innerHTML = "";
+
+        packages.forEach(pkg => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>
+                    <input type="number"
+                           id="package-cost-${pkg.packageId}"
+                           value="${pkg.packageCost}"
+                           min="1"
+                           step="0.01"
+                           class="admin-select">
+                </td>
+
+                <td>
+                    <input type="number"
+                           id="classes-per-package-${pkg.packageId}"
+                           value="${pkg.classesPerPackage}"
+                           min="1"
+                           class="admin-select">
+                </td>
+
+                <td>$${pkg.costPerClass.toFixed(2)}</td>
+
+                <td>
+                    <div class="admin-action-cell">
+                        <button class="action-button"
+                                onclick="updateCreditPackage(${pkg.packageId})">
+                            Update
+                        </button>
+
+                        <button class="action-button cancel-button"
+                                onclick="deleteCreditPackage(${pkg.packageId})">
+                            Remove
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+    }
+
     function addNewClass() {
         const classDate = document.getElementById("new-class-date").value;
         const classTime = document.getElementById("new-class-time").value;
@@ -276,6 +347,67 @@
                 classId,
                 instructorUserId: Number(instructorUserId)
             })
+        })
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
+                location.reload();
+            });
+    }
+
+    function addCreditPackage() {
+        const packageCost = Number(document.getElementById("new-package-cost").value);
+        const classesPerPackage = Number(document.getElementById("new-classes-per-package").value);
+
+        if (!packageCost || !classesPerPackage) {
+            alert("Fill all credit package fields.");
+            return;
+        }
+
+        fetch('/credits', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                packageCost,
+                classesPerPackage
+            })
+        })
+            .then(res => res.json())
+            .then(() => {
+                alert("Credit package added successfully.");
+                location.reload();
+            });
+    }
+
+    function updateCreditPackage(packageId) {
+        const packageCost = Number(document.getElementById(`package-cost-${packageId}`).value);
+        const classesPerPackage = Number(document.getElementById(`classes-per-package-${packageId}`).value);
+
+        if (!packageCost || !classesPerPackage) {
+            alert("Fill all package fields.");
+            return;
+        }
+
+        fetch(`/credits/${packageId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                packageCost,
+                classesPerPackage
+            })
+        })
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
+                location.reload();
+            });
+    }
+
+    function deleteCreditPackage(packageId) {
+        if (!confirm("Remove this credit package?")) return;
+
+        fetch(`/credits/${packageId}`, {
+            method: 'DELETE'
         })
             .then(res => res.text())
             .then(msg => {

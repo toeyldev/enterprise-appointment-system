@@ -35,7 +35,7 @@
         fetch(`/api/reservations/customer/${userId}`)
             .then(response => response.json()),
 
-        fetch('/schedule')
+        fetch('/schedule/all')
             .then(response => response.json())
     ])
         .then(([reservations, schedules]) => {

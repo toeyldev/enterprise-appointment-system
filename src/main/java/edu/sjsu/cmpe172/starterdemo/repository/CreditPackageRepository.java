@@ -65,4 +65,24 @@ public class CreditPackageRepository {
             return null;
         }, packageId);
     }
+
+    public int updatePackage(Long packageId, double packageCost, int classesPerPackage) {
+        String sql = """
+                UPDATE credit_packages
+                SET package_cost = ?,
+                    classes_per_package = ?
+                WHERE package_id = ?
+                """;
+
+        return jdbcTemplate.update(sql, packageCost, classesPerPackage, packageId);
+    }
+
+    public int deletePackage(Long packageId) {
+        String sql = """
+                DELETE FROM credit_packages
+                WHERE package_id = ?
+                """;
+
+        return jdbcTemplate.update(sql, packageId);
+    }
 }
