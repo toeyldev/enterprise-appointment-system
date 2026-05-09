@@ -15,6 +15,7 @@ public class ReservationRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // insert a new reservation into DB
     public void insertReservation(Long customerUserId, Long classId) {
         String sql = """
                 INSERT INTO reservations
@@ -29,6 +30,7 @@ public class ReservationRepository {
         jdbcTemplate.update(sql, customerUserId, classId);
     }
 
+    // return all reservations
     public List<Reservation> findAll() {
         String sql = """
                 SELECT reservation_id, customer_user_id, class_id, status, reserved_at, canceled_at
@@ -48,6 +50,7 @@ public class ReservationRepository {
         );
     }
 
+    // count booked reservations for a class
     public int countBookedReservations(Long classId) {
         String sql = """
                 SELECT COUNT(*)
@@ -59,6 +62,7 @@ public class ReservationRepository {
         return count == null ? 0 : count;
     }
 
+    // check if customer already booked the class
     public boolean existsByCustomerAndClass(Long customerUserId, Long classId) {
         String sql = """
                 SELECT COUNT(*)
@@ -78,6 +82,7 @@ public class ReservationRepository {
         return count != null && count > 0;
     }
 
+    // return reservation history for customer
     public List<Reservation> findByCustomerUserId(Long customerUserId) {
         String sql = """
                 SELECT reservation_id, customer_user_id, class_id, status, reserved_at, canceled_at
@@ -97,6 +102,7 @@ public class ReservationRepository {
                 ), customerUserId);
     }
 
+    // update reservation status to canceled
     public int cancelReservation(Long reservationId, Long customerUserId) {
         String sql = """
                 UPDATE reservations
@@ -110,6 +116,7 @@ public class ReservationRepository {
         return jdbcTemplate.update(sql, reservationId, customerUserId);
     }
 
+    // find reservation using reservation id
     public Reservation findById(Long reservationId) {
         String sql = """
                 SELECT reservation_id, customer_user_id, class_id, status, reserved_at, canceled_at
@@ -130,6 +137,7 @@ public class ReservationRepository {
         return results.isEmpty() ? null : results.get(0);
     }
 
+    // return booked reservations for a class
     public List<Reservation> findBookedReservationsByClassId(Long classId) {
         String sql = """
                 SELECT reservation_id, customer_user_id, class_id, status, reserved_at, canceled_at
@@ -149,6 +157,7 @@ public class ReservationRepository {
                 ), classId);
     }
 
+    // delete all reservations linked to a class
     public void deleteByClassId(Long classId) {
         String sql = "DELETE FROM reservations WHERE class_id = ?";
         jdbcTemplate.update(sql, classId);

@@ -15,6 +15,7 @@ public class CreditPackageRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // return all available credit packages
     public List<CreditPackage> findAll() {
         String sql = """
                 SELECT package_id, package_cost, classes_per_package
@@ -31,6 +32,7 @@ public class CreditPackageRepository {
         );
     }
 
+    // insert a new credit package into DB
     public CreditPackage save(CreditPackage creditPackage) {
         String sql = """
                 INSERT INTO credit_packages
@@ -47,6 +49,7 @@ public class CreditPackageRepository {
         return creditPackage;
     }
 
+    // find package by its id
     public CreditPackage findById(Long packageId) {
         String sql = """
                     SELECT package_id, package_cost, classes_per_package
@@ -66,6 +69,7 @@ public class CreditPackageRepository {
         }, packageId);
     }
 
+    // update package cost and class amount
     public int updatePackage(Long packageId, double packageCost, int classesPerPackage) {
         String sql = """
                 UPDATE credit_packages
@@ -77,6 +81,7 @@ public class CreditPackageRepository {
         return jdbcTemplate.update(sql, packageCost, classesPerPackage, packageId);
     }
 
+    // delete package from DB
     public int deletePackage(Long packageId) {
         String sql = """
                 DELETE FROM credit_packages

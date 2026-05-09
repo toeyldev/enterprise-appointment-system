@@ -12,6 +12,7 @@ public class ClassCreditRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // get current credit balance for customer
     public int getBalance(Long customerUserId) {
         String sql = """
                 SELECT remaining_credit
@@ -28,6 +29,7 @@ public class ClassCreditRepository {
         return result == null ? 0 : result;
     }
 
+    // add credits after customer purchase package
     public void addCredits(Long customerUserId, int credits) {
         String sql = """
                 INSERT INTO class_credit (customer_user_id, remaining_credit)
@@ -39,6 +41,7 @@ public class ClassCreditRepository {
         jdbcTemplate.update(sql, customerUserId, credits);
     }
 
+    // deduct one credit when booking a class
     public boolean deductOneCredit(Long customerUserId) {
         String sql = """
                 UPDATE class_credit
@@ -51,6 +54,7 @@ public class ClassCreditRepository {
         return rows > 0;
     }
 
+    // add credits back to customer account
     public void addCredit(Long customerUserId, int amount) {
         String sql = """
                 UPDATE class_credits

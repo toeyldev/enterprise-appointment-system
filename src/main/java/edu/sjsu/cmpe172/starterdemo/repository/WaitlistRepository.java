@@ -15,6 +15,7 @@ public class WaitlistRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // insert customer into waitlist
     public void insertWaitlistEntry(Long customerUserId, Long classId) {
         String sql = """
                 INSERT INTO waitlist
@@ -25,6 +26,7 @@ public class WaitlistRepository {
         jdbcTemplate.update(sql, customerUserId, classId);
     }
 
+    // check if customer is already on waitlist
     public boolean existsByCustomerAndClass(Long customerUserId, Long classId) {
         String sql = """
                 SELECT COUNT(*)
@@ -38,6 +40,7 @@ public class WaitlistRepository {
         return count != null && count > 0;
     }
 
+    // count no. of waiting customers for class
     public int countWaitingByClassId(Long classId) {
         String sql = """
                 SELECT COUNT(*)
@@ -50,6 +53,7 @@ public class WaitlistRepository {
         return count == null ? 0 : count;
     }
 
+    // return all waitlist entries
     public List<WaitlistEntry> findAll() {
         String sql = """
                 SELECT waitlist_id, customer_user_id, class_id, joined_at, status
@@ -68,6 +72,7 @@ public class WaitlistRepository {
         );
     }
 
+    // return waitlist history for customer
     public List<WaitlistEntry> findByCustomerUserId(Long customerUserId) {
         String sql = """
                 SELECT waitlist_id, customer_user_id, class_id, joined_at, status
@@ -86,6 +91,7 @@ public class WaitlistRepository {
                 ), customerUserId);
     }
 
+    // remove customer from waitlist
     public int leaveWaitlist(Long waitlistId, Long customerUserId) {
         String sql = """
                 DELETE FROM waitlist
@@ -97,6 +103,7 @@ public class WaitlistRepository {
         return jdbcTemplate.update(sql, waitlistId, customerUserId);
     }
 
+    // get first waiting customer for auto promotion
     public WaitlistEntry findFirstWaitingByClassId(Long classId) {
         String sql = """
                 SELECT waitlist_id, customer_user_id, class_id, joined_at, status
@@ -119,6 +126,7 @@ public class WaitlistRepository {
         return results.isEmpty() ? null : results.get(0);
     }
 
+    // update waitlist status after promotion
     public void markPromoted(Long waitlistId) {
         String sql = """
                 UPDATE waitlist
@@ -129,6 +137,7 @@ public class WaitlistRepository {
         jdbcTemplate.update(sql, waitlistId);
     }
 
+    // delete all waitlist entries for class
     public void deleteByClassId(Long classId) {
         String sql = "DELETE FROM waitlist WHERE class_id = ?";
         jdbcTemplate.update(sql, classId);

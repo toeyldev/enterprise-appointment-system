@@ -17,6 +17,7 @@ public class ScheduleRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // return all active class sessions
     public List<ClassSession> findAll() {
         String sql = """
                 SELECT cs.class_id,
@@ -58,6 +59,7 @@ public class ScheduleRepository {
         });
     }
 
+    // insert a new class session
     public ClassSession save(ClassSession session) {
         String sql = """
                 INSERT INTO class_sessions
@@ -76,6 +78,7 @@ public class ScheduleRepository {
         return session;
     }
 
+    // find class using class id
     public ClassSession findById(Long classId) {
         String sql = """
                 SELECT class_id, class_date, class_time, instructor_name, class_capacity
@@ -95,6 +98,7 @@ public class ScheduleRepository {
         return results.isEmpty() ? null : results.get(0);
     }
 
+    // lock selected class row for concurrency control
     public ClassSession findByIdForUpdate(Long classId) {
         String sql = """
                 SELECT class_id, class_date, class_time, instructor_name, class_capacity
@@ -116,6 +120,7 @@ public class ScheduleRepository {
         return results.isEmpty() ? null : results.get(0);
     }
 
+    // return classes assigned to instructor
     public List<ClassSession> findByInstructorUserId(Long instructorUserId) {
         String sql = """
                 SELECT cs.class_id,
@@ -160,6 +165,7 @@ public class ScheduleRepository {
         }, instructorUserId);
     }
 
+    // return list of students booked in a class
     public ClassStudentListDTO getClassStudentList(Long classId) {
         String classSql = """
                 SELECT class_date, class_time
@@ -195,11 +201,13 @@ public class ScheduleRepository {
         return dto;
     }
 
+    // delete class session from DB
     public void deleteById(Long classId) {
         String sql = "DELETE FROM class_sessions WHERE class_id = ?";
         jdbcTemplate.update(sql, classId);
     }
 
+    // return all sessions including canceled classes
     public List<ClassSession> findAllIncludingCanceled() {
         String sql = """
                 SELECT cs.class_id,

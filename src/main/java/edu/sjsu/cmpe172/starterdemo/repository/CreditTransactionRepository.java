@@ -15,6 +15,7 @@ public class CreditTransactionRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // insert a new credit purchase transaction
     public void insertTransaction(Long customerUserId,
                                   Long packageId,
                                   int creditsAdded) {
@@ -31,6 +32,7 @@ public class CreditTransactionRepository {
                 creditsAdded);
     }
 
+    // return transaction history for a customer
     public List<CreditTransaction> findByCustomerUserId(Long customerUserId) {
 
         String sql = """

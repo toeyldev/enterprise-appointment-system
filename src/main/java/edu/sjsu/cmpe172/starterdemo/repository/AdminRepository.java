@@ -12,6 +12,7 @@ public class AdminRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // insert a new class session into the DB
     public void addClass(String classDate,
                          String classTime,
                          Long instructorUserId,
@@ -34,6 +35,7 @@ public class AdminRepository {
         );
     }
 
+    // mark a class as canceled
     public int cancelClass(Long classId) {
         String sql = """
                 UPDATE class_sessions
@@ -45,6 +47,7 @@ public class AdminRepository {
         return jdbcTemplate.update(sql, classId);
     }
 
+    // update the instructor assigned to a class
     public int updateInstructor(Long classId,
                                 Long instructorUserId,
                                 String instructorName) {
@@ -64,6 +67,7 @@ public class AdminRepository {
         );
     }
 
+    // cancel all booked reservations for a canceled class
     public int cancelBookedReservationsForClass(Long classId) {
         String sql = """
                 UPDATE reservations
@@ -76,6 +80,7 @@ public class AdminRepository {
         return jdbcTemplate.update(sql, classId);
     }
 
+    // refund credits back to customers after admin cancellation
     public void refundCreditsForCanceledClass(Long classId) {
         String sql = """
                 UPDATE class_credit cc

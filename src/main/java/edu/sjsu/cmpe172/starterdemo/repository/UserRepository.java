@@ -15,6 +15,7 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // find user using email address
     public User findByEmail(String email) {
         String sql = """
                 SELECT user_id, first_name, last_name, email, password, role
@@ -33,6 +34,7 @@ public class UserRepository {
                 ), email);
     }
 
+    // find user using user id
     public User findById(Long userId) {
         String sql = """
                 SELECT user_id, first_name, last_name, email, password, role
@@ -51,6 +53,7 @@ public class UserRepository {
                 ), userId);
     }
 
+    // return users by selected role
     public List<User> findByRole(String role) {
         String sql = """
                 SELECT user_id, first_name, last_name, email, password, role
