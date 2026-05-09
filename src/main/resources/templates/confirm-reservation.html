@@ -20,6 +20,7 @@
 </button>
 
 <script>
+    // get logged in user
     const userId = localStorage.getItem("userId");
 
     if (!userId) {
@@ -30,6 +31,7 @@
     const params = new URLSearchParams(window.location.search);
     const classId = params.get("classId");
 
+    // load class details
     fetch('/schedule')
         .then(response => response.json())
         .then(schedules => {
@@ -59,6 +61,7 @@
             `;
         });
 
+    // confirm reservation button
     document.getElementById("confirm-reserve-button")
         .addEventListener("click", function () {
 

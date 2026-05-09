@@ -13,6 +13,7 @@ public class LoginService {
         this.userRepository = userRepository;
     }
 
+    // validate user login credentials
     public User login(String email, String password) {
         User user = userRepository.findByEmail(email);
 

@@ -30,10 +30,12 @@ public class CreditPackageService {
         return repo.findAll();
     }
 
+    // create a new credit package
     public CreditPackage addCreditPackage(CreditPackage creditPackage) {
         return repo.save(creditPackage);
     }
 
+    // handle customer purchasing credits
     @Transactional
     public String buyCredits(Long customerUserId, Long packageId) {
 
@@ -56,6 +58,7 @@ public class CreditPackageService {
         return credits + " credits purchased successfully.";
     }
 
+    // update existing credit package info
     @Transactional
     public String updateCreditPackage(Long packageId, double packageCost, int classesPerPackage) {
         int rowsUpdated = repo.updatePackage(packageId, packageCost, classesPerPackage);
@@ -67,6 +70,7 @@ public class CreditPackageService {
         return "Credit package updated successfully.";
     }
 
+    // delete credit package from system
     @Transactional
     public String deleteCreditPackage(Long packageId) {
         int rowsDeleted = repo.deletePackage(packageId);

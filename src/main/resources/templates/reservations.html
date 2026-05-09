@@ -54,13 +54,16 @@
 </table>
 
 <script>
+    // get logged in user
     const userId = localStorage.getItem("userId");
 
+    // require login
     if (!userId) {
         alert("Please login first.");
         window.location.href = "/";
     }
 
+    // load reservations, waitlist, and class schedules
     Promise.all([
         fetch(`/api/reservations/customer/${userId}`).then(r => r.json()),
         fetch(`/api/waitlist/customer/${userId}`).then(r => r.json()),
@@ -81,7 +84,7 @@
                 classMap[session.classId] = session;
             });
 
-            /* Booked + Canceled */
+            // Booked + canceled
             reservations.forEach(reservation => {
 
                 const session = classMap[reservation.classId];
@@ -120,7 +123,7 @@
                 }
             });
 
-            /* Waitlist */
+            // Waitlist
             waitlist
                 .filter(entry => entry.status === "Waiting")
                 .forEach(entry => {
@@ -149,7 +152,7 @@
                     waitlistBody.appendChild(row);
                 });
 
-            /* Cancel booked */
+            // Cancel booked
             document.querySelectorAll(".cancel-button").forEach(button => {
                 if (button.classList.contains("leave-waitlist-button")) return;
 
@@ -161,7 +164,7 @@
                 });
             });
 
-            /* Leave waitlist */
+            // Leave waitlist
             document.querySelectorAll(".leave-waitlist-button").forEach(button => {
                 button.addEventListener("click", function () {
 

@@ -9,6 +9,7 @@ public class NotificationClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    // send reservation confirmation and return response
     public String sendReservationConfirmation(NotificationRequest request) {
         String url = "http://localhost:8080/mock-notifications/send";
 
@@ -19,6 +20,7 @@ public class NotificationClient {
         }
     }
 
+    // helper method for sending notifications
     public void sendNotification(Long customerUserId, Long classId, String email, String message) {
         NotificationRequest request = new NotificationRequest(
                 customerUserId,

@@ -41,6 +41,7 @@
 </div>
 
 <script>
+    // load basic user info
     const firstName = localStorage.getItem("firstName");
     const role = localStorage.getItem("role");
 
@@ -48,16 +49,14 @@
         document.getElementById("welcome-text").textContent =
             `Welcome, ${firstName}!`;
     }
-</script>
 
-<script>
+    // logout button clear saved login data
     document.getElementById("logout-button").addEventListener("click", function () {
         localStorage.clear();
         window.location.href = "/";
     });
-</script>
 
-<script>
+    // get upcoming class count for this customer
     const userId = localStorage.getItem("userId");
 
     fetch(`/api/reservations/customer/${userId}`)

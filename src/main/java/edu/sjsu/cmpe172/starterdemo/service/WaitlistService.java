@@ -19,6 +19,7 @@ public class WaitlistService {
         return waitlistRepository.findByCustomerUserId(customerUserId);
     }
 
+    // allow customer to remove themselves from waitlist
     public String leaveWaitlist(Long waitlistId, Long customerUserId) {
         int rowsUpdated = waitlistRepository.leaveWaitlist(waitlistId, customerUserId);
 

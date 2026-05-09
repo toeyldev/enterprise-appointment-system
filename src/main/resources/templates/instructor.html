@@ -28,6 +28,7 @@
 </table>
 
 <script>
+    // get logged in instructor info
     const userId = localStorage.getItem("userId");
     const firstName = localStorage.getItem("firstName");
     const role = localStorage.getItem("role");
@@ -40,6 +41,7 @@
     document.getElementById("welcome-text").textContent =
         `Welcome, ${firstName}!`;
 
+    // load instructor classes
     fetch(`/schedule/instructor/${userId}`)
         .then(response => response.json())
         .then(data => {
@@ -75,6 +77,7 @@
         })
         .catch(error => console.error("Error loading instructor classes:", error));
 
+    // load enrolled students for selected class
     function loadStudents(classId, button) {
         const currentRow = button.closest("tr");
 
@@ -112,6 +115,7 @@
             .catch(error => console.error("Error loading students:", error));
     }
 
+    // logout button
     document.getElementById("logout-button").addEventListener("click", function () {
         localStorage.clear();
         window.location.href = "/";

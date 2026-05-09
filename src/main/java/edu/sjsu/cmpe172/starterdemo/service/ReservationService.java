@@ -46,6 +46,7 @@ public class ReservationService {
         return reservationRepository.findByCustomerUserId(customerUserId);
     }
 
+    // cancel reservation and promotes next waitlisted customer if possible
     @Transactional
     public String cancelReservation(Long reservationId, Long customerUserId) {
         Reservation reservation = reservationRepository.findById(reservationId);
@@ -94,6 +95,7 @@ public class ReservationService {
         return "Reservation canceled successfully. One class credit has been refunded.";
     }
 
+    // main booking workflow with concurrency handling
     @Transactional
     public String makeReservation(Long customerUserId, Long classId) {
         long startTime = System.currentTimeMillis();

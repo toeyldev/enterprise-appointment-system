@@ -26,6 +26,7 @@
 </form>
 
 <script>
+    // handle login submission
     document.getElementById("login-form").addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -46,12 +47,14 @@
                     return;
                 }
 
+                // save logged in user info
                 localStorage.setItem("userId", data.userId);
                 localStorage.setItem("firstName", data.firstName);
                 localStorage.setItem("lastName", data.lastName);
                 localStorage.setItem("email", data.email);
                 localStorage.setItem("role", data.role);
 
+                // redirect user based on role
                 if (data.role === "Instructor") {
                     window.location.href = "/instructor";
                 } else if (data.role === "Admin") {

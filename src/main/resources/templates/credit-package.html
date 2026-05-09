@@ -26,13 +26,16 @@
 </table>
 
 <script>
+    // get logged in user
     const userId = localStorage.getItem("userId");
 
+    // require login
     if (!userId) {
         alert("Please login first.");
         window.location.href = "/";
     }
 
+    // load customer credit balance
     function loadBalance() {
         fetch(`/api/credits/${userId}`)
             .then(response => response.json())
@@ -44,6 +47,7 @@
 
     loadBalance();
 
+    // load available credit packages
     fetch('/credits')
         .then(response => response.json())
         .then(data => {

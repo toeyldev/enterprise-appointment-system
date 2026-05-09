@@ -24,6 +24,7 @@ public class AdminService {
         return userRepository.findByRole("Instructor");
     }
 
+    // add a new class and assign it to an instructor
     @Transactional
     public String addClass(String classDate,
                            String classTime,
@@ -49,6 +50,7 @@ public class AdminService {
         return "Class added successfully.";
     }
 
+    // cancel class, cancel booked reservations, and refund credits
     @Transactional
     public String cancelClass(Long classId) {
         int rowsUpdated = adminRepository.cancelClass(classId);
@@ -66,6 +68,7 @@ public class AdminService {
                 " booked customer(s) were refunded.";
     }
 
+    // update instructor assigned to a class
     @Transactional
     public String updateInstructor(Long classId, Long instructorUserId) {
         User instructor = userRepository.findById(instructorUserId);

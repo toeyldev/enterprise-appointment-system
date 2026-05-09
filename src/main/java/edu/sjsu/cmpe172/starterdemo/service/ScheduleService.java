@@ -50,6 +50,7 @@ public class ScheduleService {
         return repo.getClassStudentList(classId);
     }
 
+    // cancel a class and handle related reservations/waitlist
     @Transactional
     public String cancelClassByAdmin(Long classId) {
         ClassSession session = repo.findById(classId);
@@ -85,6 +86,7 @@ public class ScheduleService {
         return "Class canceled successfully.";
     }
 
+    // return all classes, including canceled ones
     public List<ClassSession> getAllSessionsIncludingCanceled() {
         return repo.findAllIncludingCanceled();
     }
