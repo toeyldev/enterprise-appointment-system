@@ -11,7 +11,6 @@
 <h1>Reservation History</h1>
 <p class="subtitle">Mat Pilates at San Jose Studio</p>
 
-<!-- BOOKED -->
 <h2>Booked</h2>
 <table class="history-table">
     <thead>
@@ -26,7 +25,6 @@
     <tbody id="booked-body"></tbody>
 </table>
 
-<!-- WAITLIST -->
 <h2 class="reservation-section-title">Waitlisted</h2>
 <table class="history-table">
     <thead>
@@ -41,7 +39,6 @@
     <tbody id="waitlist-body"></tbody>
 </table>
 
-<!-- CANCELED -->
 <h2 class="reservation-section-title">Canceled</h2>
 <table class="history-table">
     <thead>
@@ -84,7 +81,7 @@
                 classMap[session.classId] = session;
             });
 
-            /* BOOKED + CANCELED */
+            /* Booked + Canceled */
             reservations.forEach(reservation => {
 
                 const session = classMap[reservation.classId];
@@ -123,7 +120,7 @@
                 }
             });
 
-            /* WAITLIST */
+            /* Waitlist */
             waitlist
                 .filter(entry => entry.status === "Waiting")
                 .forEach(entry => {
@@ -152,7 +149,7 @@
                     waitlistBody.appendChild(row);
                 });
 
-            /* CANCEL BOOKED */
+            /* Cancel booked */
             document.querySelectorAll(".cancel-button").forEach(button => {
                 if (button.classList.contains("leave-waitlist-button")) return;
 
@@ -164,7 +161,7 @@
                 });
             });
 
-            /* LEAVE WAITLIST */
+            /* Leave waitlist */
             document.querySelectorAll(".leave-waitlist-button").forEach(button => {
                 button.addEventListener("click", function () {
 

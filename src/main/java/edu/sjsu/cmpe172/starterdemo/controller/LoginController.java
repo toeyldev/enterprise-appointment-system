@@ -18,11 +18,13 @@ public class LoginController {
 
     @PostMapping
     public Object login(@RequestBody Map<String, String> body) {
+        // get login info from frontend request
         String email = body.get("email");
         String password = body.get("password");
 
         User user = loginService.login(email, password);
 
+        // if login fails, return error message
         if (user == null) {
             return Map.of(
                     "success", false,
@@ -30,6 +32,7 @@ public class LoginController {
             );
         }
 
+        // if login successful, return user info
         return Map.of(
                 "success", true,
                 "userId", user.getUserId(),

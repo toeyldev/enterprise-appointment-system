@@ -15,6 +15,7 @@ public class MetricsController {
         this.metricsService = metricsService;
     }
 
+    // endpoint for booking statistics
     @GetMapping("/metrics")
     public Map<String, Object> metrics() {
         return Map.of(

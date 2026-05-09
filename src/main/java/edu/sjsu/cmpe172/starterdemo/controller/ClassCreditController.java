@@ -10,20 +10,24 @@ import java.util.Map;
 @RequestMapping("/api/credits")
 public class ClassCreditController {
 
-    private final ClassCreditService service;
+    // handle customer credit balance
+    private final ClassCreditService classCreditService;
+    // handle purchasing credit packages
     private final CreditPackageService creditPackageService;
 
     public ClassCreditController(ClassCreditService service,
                                  CreditPackageService creditPackageService) {
-        this.service = service;
+        this.classCreditService = service;
         this.creditPackageService = creditPackageService;
     }
 
+    // return customer's current class credit balance
     @GetMapping("/{customerUserId}")
     public Map<String, Integer> getBalance(@PathVariable Long customerUserId) {
-        return Map.of("balance", service.getBalance(customerUserId));
+        return Map.of("balance", classCreditService.getBalance(customerUserId));
     }
 
+    // endpoint for buying class credits
     @PostMapping("/buy")
     public String buy(@RequestBody Map<String, Long> body) {
         Long customerUserId = body.get("customerUserId");

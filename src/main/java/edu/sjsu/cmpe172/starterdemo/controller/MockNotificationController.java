@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/mock-notifications")
 public class MockNotificationController {
 
+    // mock external service endpoint
     @PostMapping("/send")
     public String sendNotification(@RequestBody NotificationRequest request) {
         return "Mock notification sent to " + request.getCustomerEmail()

@@ -10,14 +10,16 @@ import java.util.List;
 @RequestMapping("/api/credit-history")
 public class CreditTransactionController {
 
-    private final CreditTransactionService service;
+    // handle retrieving customer transaction history
+    private final CreditTransactionService creditTransactionService;
 
     public CreditTransactionController(CreditTransactionService service) {
-        this.service = service;
+        this.creditTransactionService = service;
     }
 
+    // return all credit purchase history for a customer
     @GetMapping("/{customerUserId}")
     public List<CreditTransaction> history(@PathVariable Long customerUserId) {
-        return service.getCustomerHistory(customerUserId);
+        return creditTransactionService.getCustomerHistory(customerUserId);
     }
 }

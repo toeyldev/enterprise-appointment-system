@@ -16,6 +16,7 @@ public class HealthController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // health check endpoint for monitoring system status
     @GetMapping("/health")
     public Map<String, Object> health() {
         String databaseStatus = "UP";

@@ -51,7 +51,7 @@ tr {
     border-bottom: 1px solid #ddd;
 }
 
-/* schedule page table only */
+/* schedule page table */
 .schedule-table {
     width: 100%;
     border-collapse: collapse;
@@ -204,7 +204,7 @@ tr {
     margin-top: 4px;
 }
 
-/* cancel confirmation */
+/* cancel confirmation page */
 .cancel-details {
     margin: 24px 0 30px 0;
     max-width: 520px;
@@ -266,7 +266,7 @@ tr {
     width: 8%;
 }
 
-/* admin */
+/* admin dashboard */
 .admin-summary-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

@@ -18,9 +18,11 @@ public class CreditPackage {
     public Long getPackageId() {
         return packageId;
     }
+
     public void setPackageId(Long packageId) {
         this.packageId = packageId;
     }
+
     public double getPackageCost() {
         return packageCost;
     }

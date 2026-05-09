@@ -17,11 +17,13 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    // return all instructors for admin
     @GetMapping("/instructors")
     public List<User> getInstructors() {
         return adminService.getInstructors();
     }
 
+    // admin can create a new class schedule
     @PostMapping("/classes")
     public String addClass(@RequestBody Map<String, Object> body) {
         String classDate = body.get("classDate").toString();
@@ -32,12 +34,15 @@ public class AdminController {
         return adminService.addClass(classDate, classTime, instructorUserId, classCapacity);
     }
 
+    // admin can cancel a class
     @PostMapping("/classes/cancel")
     public String cancelClass(@RequestBody Map<String, Long> body) {
         Long classId = body.get("classId");
+
         return adminService.cancelClass(classId);
     }
 
+    // update instructor assigned to a class
     @PostMapping("/classes/update-instructor")
     public String updateInstructor(@RequestBody Map<String, Long> body) {
         Long classId = body.get("classId");

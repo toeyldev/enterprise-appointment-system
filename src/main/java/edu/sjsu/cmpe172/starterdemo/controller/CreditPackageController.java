@@ -10,34 +10,38 @@ import java.util.List;
 @RequestMapping("/credits")
 public class CreditPackageController {
 
-    private final CreditPackageService service;
+    private final CreditPackageService creditPackageService;
 
     public CreditPackageController(CreditPackageService service) {
-        this.service = service;
+        this.creditPackageService = service;
     }
 
+    // return all available credit packages
     @GetMapping
     public List<CreditPackage> getPackages() {
-        return service.getAllPackages();
+        return creditPackageService.getAllPackages();
     }
 
+    // create a new credit package
     @PostMapping
     public CreditPackage createPackage(@RequestBody CreditPackage creditPackage) {
-        return service.addCreditPackage(creditPackage);
+        return creditPackageService.addCreditPackage(creditPackage);
     }
 
+    // update existing package details
     @PutMapping("/{packageId}")
     public String updatePackage(@PathVariable Long packageId,
                                 @RequestBody CreditPackage creditPackage) {
-        return service.updateCreditPackage(
+        return creditPackageService.updateCreditPackage(
                 packageId,
                 creditPackage.getPackageCost(),
                 creditPackage.getClassesPerPackage()
         );
     }
 
+    // remove a credit package from the system
     @DeleteMapping("/{packageId}")
     public String deletePackage(@PathVariable Long packageId) {
-        return service.deleteCreditPackage(packageId);
+        return creditPackageService.deleteCreditPackage(packageId);
     }
 }

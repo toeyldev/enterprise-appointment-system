@@ -1,1 +1,1 @@
-SELECT * FROM pilates_studio.reservations;
+SELECT * FROM pilates_studio.class_credit;

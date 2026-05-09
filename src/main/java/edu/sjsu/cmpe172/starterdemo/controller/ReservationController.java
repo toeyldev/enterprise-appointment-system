@@ -17,11 +17,13 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    // return all reservations
     @GetMapping
     public List<Reservation> getReservations() {
         return reservationService.getAllReservations();
     }
 
+    // endpoint for booking a class
     @PostMapping
     public String reserve(@RequestBody Map<String, Long> body) {
         Long customerUserId = body.get("customerUserId");
@@ -30,11 +32,13 @@ public class ReservationController {
         return reservationService.makeReservation(customerUserId, classId);
     }
 
+    // get reservation history for a specific customer
     @GetMapping("/customer/{customerUserId}")
     public List<Reservation> getReservationsByCustomer(@PathVariable Long customerUserId) {
         return reservationService.getReservationsByCustomer(customerUserId);
     }
 
+    // cancel an existing reservation
     @PostMapping("/cancel")
     public String cancelReservation(@RequestBody Map<String, Long> body) {
         Long reservationId = body.get("reservationId");

@@ -17,11 +17,13 @@ public class WaitlistController {
         this.waitlistService = waitlistService;
     }
 
+    // return waitlist entries for a customer
     @GetMapping("/customer/{customerUserId}")
     public List<WaitlistEntry> getCustomerWaitlist(@PathVariable Long customerUserId) {
         return waitlistService.getCustomerWaitlist(customerUserId);
     }
 
+    // allow customer to leave a waitlist
     @PostMapping("/leave")
     public String leaveWaitlist(@RequestBody Map<String, Long> body) {
         Long waitlistId = body.get("waitlistId");

@@ -36,11 +36,11 @@ public class AdminRepository {
 
     public int cancelClass(Long classId) {
         String sql = """
-            UPDATE class_sessions
-            SET status = 'Canceled'
-            WHERE class_id = ?
-              AND status = 'Active'
-            """;
+                UPDATE class_sessions
+                SET status = 'Canceled'
+                WHERE class_id = ?
+                  AND status = 'Active'
+                """;
 
         return jdbcTemplate.update(sql, classId);
     }
